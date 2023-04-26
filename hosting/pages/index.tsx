@@ -2,6 +2,7 @@ import Navigation from "../components/Navbar";
 import {ArrowRightIcon} from "@heroicons/react/24/solid";
 import Link from "next/link";
 import {useState} from "react";
+import {EnvelopeIcon} from "@heroicons/react/20/solid";
 
 export default function IndexPage() {
     return (
@@ -11,7 +12,10 @@ export default function IndexPage() {
                 <section className="bg-white dark:bg-gray-900">
                     <div className="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16">
                         <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-                            Hello, I'm <span className="text-blue-700"> Shreyas Prasad </span>
+                            <p>Hello, I'm </p>
+                            <p className="text-blue-700">
+                                Shreyas Prasad
+                            </p>
                         </h1>
                         <p className="mb-2 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
                             I'm a senior at Stony Brook University studying Computer Science & Applied Mathematics.
@@ -19,6 +23,9 @@ export default function IndexPage() {
                         <div className="flex justify-center mb-8">
                             <LinkedIn />
                             <Github />
+                            <Link href={"mailto: contact@shreyasprasad.dev"}>
+                                <EnvelopeIcon className="h-12 w-12 fill-blue-700" />
+                            </Link>
                         </div>
                         <div
                             className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">

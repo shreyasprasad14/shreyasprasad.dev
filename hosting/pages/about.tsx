@@ -1,8 +1,8 @@
 import Navigation from "../components/Navbar";
 import Image from "next/image";
-import profilePic from "../img/self.png";
+import profilePic from "../public/self.png";
 import Link from "next/link";
-import { DocumentTextIcon } from "@heroicons/react/20/solid";
+import {DocumentTextIcon, EnvelopeIcon} from "@heroicons/react/20/solid";
 
 export default function AboutPage() {
   return (
@@ -31,6 +31,11 @@ export default function AboutPage() {
                     </span>
                     <div
                         className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
+                        <Link href="mailto: contact@shreyasprasad.dev"
+                              className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                            <EnvelopeIcon className="w-5 h-5 -ml-1 mr-3" aria-hidden="true"/>
+                            contact@shreyasprasad.dev
+                        </Link>
                         <Link href="https://drive.google.com/file/d/1PyuAKISjIdg39Mt6hQpkuE64eVMlt5A4/view?usp=sharing"
                               className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
                             <DocumentTextIcon className="w-5 h-5 -ml-1 mr-3" aria-hidden="true"/>
@@ -47,11 +52,9 @@ export default function AboutPage() {
                         Education
                     </h1>
 
-                    <ul>
-                        <li className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
-                            B.S. Computer Science, Applied Mathematics and Statistics | Stony Brook University | 2020 - 2023
-                        </li>
-                    </ul>
+                    <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
+                        B.S. Computer Science, Applied Mathematics and Statistics | Stony Brook University | 2020 - 2023
+                    </p>
                 </div>
             </section>
 

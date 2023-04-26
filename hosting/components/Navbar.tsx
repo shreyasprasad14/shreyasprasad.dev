@@ -4,6 +4,9 @@ import { Navbar } from "flowbite-react";
 import 'tailwindcss/tailwind.css'
 import {useRouter} from "next/router";
 
+import logo from '../public/favicon.svg'
+import Image from "next/image";
+
 
 const roboto = Roboto({
     weight: "400",
@@ -29,7 +32,7 @@ export default function Navigation() {
             >
                 <Navbar.Brand href="/">
                     <span className="self-center whitespace-nowrap text-xl font-sans font-semibold dark:text-white">
-                      Shreyas Prasad
+                      <Image src={logo} alt="Shreyas Prasad" width={50} height={50} />
                     </span>
                 </Navbar.Brand>
                 <Navbar.Toggle />
@@ -37,18 +40,21 @@ export default function Navigation() {
                     <Navbar.Link
                         href="/"
                         active={route === "/"}
+                        className="md:text-xl"
                     >
                         Home
                     </Navbar.Link>
                     <Navbar.Link
                         href="/about"
                         active={route === "/about"}
+                        className="md:text-xl"
                     >
                         About
                     </Navbar.Link>
                     <Navbar.Link
                         href="/projects"
                         active={route === "/projects"}
+                        className="md:text-xl"
                     >
                         Projects
                     </Navbar.Link>
