@@ -98,49 +98,6 @@ export default function Projects() {
                         </p>
                     </div>
                 </section>
-
-                <section className="bg-white dark:bg-gray-900">
-                    <div className="py-4 px-4 mx-auto max-w-screen-xl text-center lg:py-8">
-                        <h2 className="mb-4 text-2xl font-extrabold tracking-tight leading-none text-gray-900 md:text-3xl lg:text-4xl dark:text-white">
-                            Press Release
-                        </h2>
-
-                        <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-8 lg:px-24 dark:text-gray-400">
-                            For CSE 300: Technical Communications, I wrote a <Link href={"https://docs.google.com/document/d/1HsCKmJYY86Ray23L0bvFwXP-bao3g3EId4ptGVQ8F9I/edit?usp=sharing"} className="text-blue-400 hover:text-blue-600">
-                                mock press release
-                            </Link> describing the release of Bing's new AI chatbot.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="bg-white dark:bg-gray-900">
-                    <div className="py-4 px-4 mx-auto max-w-screen-xl text-center lg:py-8">
-                        <h2 className="mb-4 text-2xl font-extrabold tracking-tight leading-none text-gray-900 md:text-3xl lg:text-4xl dark:text-white">
-                            User Instructions
-                        </h2>
-
-                        <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-8 lg:px-24 dark:text-gray-400">
-                            For CSE 300: Technical Communications, I wrote  <Link href={"https://docs.google.com/document/d/1efIckkH7AdYOsPwaGKZejA5c3i41wxE6jr3vhQ2Gcao/edit?usp=sharing"} className="text-blue-400 hover:text-blue-600">
-                            user instructions
-                        </Link> to guide users through the process of writing a Python program to read a QR Code from the webcam.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="bg-white dark:bg-gray-900">
-                    <div className="py-4 px-4 mx-auto max-w-screen-xl text-center lg:py-8">
-                        <h2 className="mb-4 text-2xl font-extrabold tracking-tight leading-none text-gray-900 md:text-3xl lg:text-4xl dark:text-white">
-                            User Instructions
-                        </h2>
-
-                        <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-8 lg:px-24 dark:text-gray-400">
-                            For CSE 300: Technical Communications, I worked with a team of 4 to present a proposal
-                            for Stony Brook University's Computer Science program to <Link href={"https://docs.google.com/presentation/d/1kYLztXk8pgfXR_PQkbyobNv9vdMBtgl014iY4bq2QHo/edit?usp=sharing"} className="text-blue-400 hover:text-blue-600">
-                            better prepare students for the workforce
-                        </Link>.
-                        </p>
-                    </div>
-                </section>
             </div>
         </div>
     )
