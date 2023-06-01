@@ -79,7 +79,10 @@ export default function Anagrams({ words }) {
             }
             else if (e.key === 'Enter') {
                 handleWordSubmit();
-            } else if (e.keyCode >= 65 && e.keyCode <= 90 && userLetters.length < 6) {
+            } else if (e.keyCode >= 65 && e.keyCode <= 90 && userLetters.length < 6 &&
+                gameLetters.includes(e.key) && gameState === GAME_STATE.PLAYING &&
+                !userLetters.includes(e.key)
+            ) {
                 setUserLetters([...userLetters, e.key]);
 
                 const index = gameLetters.indexOf(e.key);

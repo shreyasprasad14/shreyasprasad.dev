@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "shreyasprasaddev"
-  }
+    "default": "shreyasprasaddev",
+    "hosting": "shreyasprasaddev"
+  },
+  "targets": {},
+  "etags": {}
 }
