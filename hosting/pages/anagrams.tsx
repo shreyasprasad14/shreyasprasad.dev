@@ -18,6 +18,9 @@ enum GAME_STATE {
 }
 export async function getStaticProps() {
     const words = await getWordData();
+    for (let i =0; i < words[0].length; i++) {
+        console.log(words[0][i]);
+    }
     return {
         props: {
             words
@@ -29,8 +32,8 @@ export default function Anagrams({ words }) {
     const { showToast } = useLocalToast();
     const scoreTable = [0, 25, 50, 100, 400, 1200, 2000];
     const handleWordSubmit = () => {
-        const word = userLetters.join('');
-        if (!userWords.includes(word) && isPseudoAnagram(word, gameLetters) && words.includes(word)) {
+        let word = userLetters.join('');
+        if (!userWords.includes(word) && isPseudoAnagram(word, gameLetters) && words.includes(word.toUpperCase())) {
             const wordScore = scoreTable[word.length];
             setScore(score + wordScore);
             showToast("anagrams", `+${wordScore} points`, {type:"success", duration: 1000});
