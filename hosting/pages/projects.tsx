@@ -22,7 +22,7 @@ export default function Projects() {
                         </h3>
 
                         <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-8 lg:px-24 dark:text-gray-400">
-                            As a part of an internship at Cohen & Steers, I develop an internal web application to manage Active Directory administrators.
+                            As a part of an internship at Cohen & Steers, I developed an internal web application to manage Active Directory administrators.
                             I corresponded with the IT and Development teams to gather requirements, and designed the application architecture and database schema.
                         </p>
                         <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-8 lg:px-24 dark:text-gray-400">
@@ -93,8 +93,7 @@ export default function Projects() {
                         <p className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-8 lg:px-24 dark:text-gray-400">
                             <Link href={"https://github.com/shreyasprasad14/shreyasprasad.dev"} className="text-blue-400 hover:text-blue-600">
                                 This website
-                            </Link> was developed for CSE 300: Technical Communications.
-                            The repository is hosted on GitHub and uses GitHub Actions to run Google Cloud Functions to deploy onto Firebase.
+                            </Link> was developed to introduce myself to Next.js, is hosted on GitHub and uses GitHub Actions to run Google Cloud Functions to deploy onto Firebase.
                         </p>
                     </div>
                 </section>

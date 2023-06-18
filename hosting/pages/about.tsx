@@ -66,7 +66,7 @@ export default function AboutPage() {
 
                     <ul>
                         <li className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
-                            <span className="font-bold">Software Mentor</span> | FRC Team #263 | Jan 2021 - Present
+                            <span className="font-bold">Software Mentor</span> | FRC Team #263 | Jan 2021 - June 2023
                             <p className="text-base font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
                                 <Link href={"https://www.first263.org/"} className="text-blue-400 hover:text-blue-600">FIRST Robotics Competition </Link>
                                 is an international high school robotics competition.
@@ -75,7 +75,7 @@ export default function AboutPage() {
                         </li>
 
                         <li className="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
-                            <span className="font-bold">Math Instructor</span> | Mathnasium of Sayville | Jan 2021 - Present
+                            <span className="font-bold">Math Instructor</span> | Mathnasium of Sayville | Jan 2021 - June 2023
                             <p className="text-base font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
                                 As an instructor, I teach students of all ages how to solve math problems using the Mathnasium Method.
                                 I've taught students from elementary school through the college level classes such as Linear Algebra and Statistics.
