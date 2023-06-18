@@ -45,7 +45,7 @@ export default function Anagrams({ words }) {
             }
         }
     }
-    const [gameLetters, setGameLetters] = useState<string[]>(generateLetterSet(words));
+    const [gameLetters, setGameLetters] = useState<string[]>(generateLetterSet());
     const [countdown, setCountdown] = useState<number>(60);
     const [gameState, setGameState] = useState<GAME_STATE>(GAME_STATE.INIT);
 
@@ -274,7 +274,7 @@ function isPseudoAnagram(str: string, letters: string[]): boolean {
     return true;
 }
 
-function generateLetterSet(wordSet: string[]): string[] {
+function generateLetterSet(): string[] {
     // For each day, generate a set of 6 letters
 
     //Check the current day
@@ -282,14 +282,42 @@ function generateLetterSet(wordSet: string[]): string[] {
     const seed = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate();
     const random = new seedrandom(seed);
 
-    const letterSet: string[] = [];
+    const allLetters: string[] = [];
+    // Generate the letter set
+    for (let i = 0; i < 26; i++) {
+        allLetters.push(String.fromCharCode(97 + i));
+    }
+    const weights: number[] = [16,4,4,8,22,4,6,6,14,2,2,8,4,10,14,4,2,12,8,10,8,2,2,2,4,2];
 
-    // From the set of all words, select a random 6-letter word to create our alphabet
-    const sixLetterWords = wordSet.filter(word => word.length === 6);
-    const randomSixLetterWord = sixLetterWords[Math.floor(random() * sixLetterWords.length)];
-    for (let i = 0; i < randomSixLetterWord.length; i++) {
-        letterSet.push(randomSixLetterWord[i]);
+
+    let totalWeight = 0;
+    weights.forEach((weight) => {
+        totalWeight += weight;
+    });
+
+    for (let i = 0; i < weights.length; i++) {
+        weights[i] = weights[i] / totalWeight;
     }
 
-    return shuffleLetters(letterSet);
+    const letters: string[] = [];
+
+    // Generate a set of 6 letters as per the weights
+    for (let i = 0; i < 6; i++) {
+        const randomNum = random();
+        let sum = 0;
+        for (let j = 0; j < weights.length; j++) {
+            sum += weights[j];
+            if (randomNum <= sum) {
+               // If there are 2 or more of the same letter, only add it if there are less than 2 of it
+                if (letters.includes(allLetters[j]) && letters.filter((letter) => letter === allLetters[j]).length >= 2) {
+                    i--;
+                    break;
+                }
+                letters.push(allLetters[j]);
+                break;
+            }
+        }
+    }
+    
+    return letters;
 }
