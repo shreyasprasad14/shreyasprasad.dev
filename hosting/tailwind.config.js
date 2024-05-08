@@ -1,21 +1,18 @@
 /** @type {import('tailwindcss').Config} */
-const { fontFamily } = require('tailwindcss/defaultTheme');
-
-const path = require('path');
 module.exports = {
   darkMode: 'class',
   content: [
-    path.join(__dirname, 'node_modules/flowbite-react/**/*.js'),
-    path.join(__dirname, 'pages/**/*.{js,ts,jsx,tsx,mdx}'),
-    path.join(__dirname, 'components/**/*.{js,ts,jsx,tsx,mdx}'),
+   './node_modules/flowbite-react/**/*.js',
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {},
     fontFamily: {
-      sans: ['var(--font-roboto)', ...fontFamily.sans],
+      sans: ['var(--font-roboto)', 'sans-serif'],
     }
   },
   plugins: [
-    require("flowbite/plugin")
+    'flowbite/plugin'
   ],
 }

@@ -4,12 +4,8 @@ import {ArrowLongRightIcon, ArrowPathRoundedSquareIcon} from "@heroicons/react/2
 import {useEffect, useState} from "react";
 import {Button} from "flowbite-react";
 import {Dialog, Transition} from "@headlessui/react";
-import {LocalToastTarget, useLocalToast} from "react-local-toast";
 
 const seedrandom = require('seedrandom');
-
-import 'react-local-toast/dist/bundle.css';
-
 
 enum GAME_STATE {
     INIT,
@@ -29,22 +25,21 @@ export async function getStaticProps() {
 }
 export default function Anagrams({ words }) {
 
-    const { showToast } = useLocalToast();
     const scoreTable = [0, 25, 50, 100, 400, 1200, 2000];
     const handleWordSubmit = () => {
         let word = userLetters.join('');
         if (!userWords.includes(word) && isPseudoAnagram(word, gameLetters) && words.includes(word.toUpperCase())) {
             const wordScore = scoreTable[word.length];
             setScore(score + wordScore);
-            showToast("anagrams", `+${wordScore} points`, {type:"success", duration: 1000});
+            // showToast("anagrams", `+${wordScore} points`, {type:"success", duration: 1000});
             setUserLetters([]);
             setUserIndices([]);
             setUserWords([...userWords, word])
         } else {
             if (userWords.includes(word)) {
-                showToast("anagrams", "Word already submitted", {type:"error", duration: 500});
+                // showToast("anagrams", "Word already submitted", {type:"error", duration: 500});
             } else {
-                showToast("anagrams", "Invalid word", {type: "error", duration: 500});
+                // showToast("anagrams", "Invalid word", {type: "error", duration: 500});
             }
         }
     }
@@ -142,20 +137,18 @@ export default function Anagrams({ words }) {
                 <h1 className="text-4xl text-center">Anagrams</h1>
                 <div className="flex justify-center items-center">
                     <div className="flex flex-col justify-center items-center">
-                        <LocalToastTarget name={"anagrams"}>
-                            <div className="flex justify-center items-center">
-                                <Box letter={userLetters[0]} onClick={()=>clearLetter(0)} />
-                                <Box letter={userLetters[1]} onClick={()=>clearLetter(1)} />
-                                <Box letter={userLetters[2]} onClick={()=>clearLetter(2)} />
-                                <Box letter={userLetters[3]} onClick={()=>clearLetter(3)} />
-                                <Box letter={userLetters[4]} onClick={()=>clearLetter(4)} />
-                                <Box letter={userLetters[5]} onClick={()=>clearLetter(5)} />
-                                <ArrowLongRightIcon
-                                    className="w-8 h-8 m-2 hover:cursor-pointer hover:text-blue-700"
-                                    onClick={handleWordSubmit}
-                                />
-                            </div>
-                        </LocalToastTarget>
+                        <div className="flex justify-center items-center">
+                            <Box letter={userLetters[0]} onClick={()=>clearLetter(0)} />
+                            <Box letter={userLetters[1]} onClick={()=>clearLetter(1)} />
+                            <Box letter={userLetters[2]} onClick={()=>clearLetter(2)} />
+                            <Box letter={userLetters[3]} onClick={()=>clearLetter(3)} />
+                            <Box letter={userLetters[4]} onClick={()=>clearLetter(4)} />
+                            <Box letter={userLetters[5]} onClick={()=>clearLetter(5)} />
+                            <ArrowLongRightIcon
+                                className="w-8 h-8 m-2 hover:cursor-pointer hover:text-blue-700"
+                                onClick={handleWordSubmit}
+                            />
+                        </div>
                     </div>
                 </div>
                 <div className="flex justify-center items-center hover:cursor-pointer">
