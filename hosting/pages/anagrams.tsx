@@ -6,7 +6,6 @@ import {Button} from "flowbite-react";
 import {Dialog, Transition} from "@headlessui/react";
 import toast, {Toaster} from "react-hot-toast";
 
-
 const seedrandom = require('seedrandom');
 
 enum GameState {
@@ -16,7 +15,6 @@ enum GameState {
 }
 
 export const getStaticProps = (async () => {
-    console.log("Getting words...")
     const raw_starting_words = await getStartingWords();
     const starting_words = raw_starting_words.map((word) => {
         return word.split(" ")[0];
@@ -161,7 +159,7 @@ export default function Anagrams({ words, starting_words }) {
     return (
         <div>
             <Navigation />
-            <div className="h-full" onKeyDown={() => console.log("fire") }>
+            <div className="h-full">
                 <h1 className="text-4xl text-center">Anagrams</h1>
                 <div className="flex justify-center items-center">
                     <div className="flex flex-col justify-center items-center">
@@ -309,6 +307,5 @@ function generateLetterSet(allWords: string[]): string[] {
 
     const randomIndex = Math.floor(random() * allWords.length);
     const randomWord = allWords[randomIndex];
-    console.log("Selected Word: ", randomWord);
     return shuffleLetters(shuffleLetters(randomWord.split('')));
 }
