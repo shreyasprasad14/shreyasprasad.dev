@@ -1,51 +1,66 @@
-import { getWordData } from "../data/worddata";
+import {getStartingWords, getWordData} from "../data/worddata";
 import Navigation from "../components/Navbar";
 import {ArrowLongRightIcon, ArrowPathRoundedSquareIcon} from "@heroicons/react/24/solid";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Button} from "flowbite-react";
 import {Dialog, Transition} from "@headlessui/react";
+import toast, {Toaster} from "react-hot-toast";
+
 
 const seedrandom = require('seedrandom');
 
-enum GAME_STATE {
+enum GameState {
     INIT,
     PLAYING,
     FINISHED
 }
-export async function getStaticProps() {
+
+export const getStaticProps = (async () => {
+    console.log("Getting words...")
+    const raw_starting_words = await getStartingWords();
+    const starting_words = raw_starting_words.map((word) => {
+        return word.split(" ")[0];
+    });
+
     const words = await getWordData();
-    for (let i =0; i < words[0].length; i++) {
-        console.log(words[0][i]);
-    }
+
     return {
         props: {
-            words
+            words,
+            starting_words
         }
     }
-}
-export default function Anagrams({ words }) {
+});
 
-    const scoreTable = [0, 25, 50, 100, 400, 1200, 2000];
+export default function Anagrams({ words, starting_words }) {
+    const scoreTable = [-1, -1, -1, 100, 400, 1200, 2000, 5000];
+
     const handleWordSubmit = () => {
         let word = userLetters.join('');
-        if (!userWords.includes(word) && isPseudoAnagram(word, gameLetters) && words.includes(word.toUpperCase())) {
+        if (!userWords.includes(word)
+            && word.length > 2
+            && isPseudoAnagram(word, gameLetters)
+            && words.includes(word.toLowerCase())
+        ) {
             const wordScore = scoreTable[word.length];
             setScore(score + wordScore);
-            // showToast("anagrams", `+${wordScore} points`, {type:"success", duration: 1000});
+            toast.dismiss()
+            toast.success(`+${wordScore}`, {duration: 500})
             setUserLetters([]);
             setUserIndices([]);
             setUserWords([...userWords, word])
         } else {
             if (userWords.includes(word)) {
-                // showToast("anagrams", "Word already submitted", {type:"error", duration: 500});
+                toast.dismiss()
+                toast.error("Word already submitted", {duration: 500});
             } else {
-                // showToast("anagrams", "Invalid word", {type: "error", duration: 500});
+                toast.dismiss()
+                toast.error("Invalid Word", {duration: 1000});
             }
         }
     }
-    const [gameLetters, setGameLetters] = useState<string[]>(generateLetterSet(words));
-    const [countdown, setCountdown] = useState<number>(60);
-    const [gameState, setGameState] = useState<GAME_STATE>(GAME_STATE.INIT);
+    const [gameLetters, setGameLetters] = useState<string[]>(generateLetterSet(starting_words));
+    const [gameState, setGameState] = useState<GameState>(GameState.INIT);
 
     const [mutableLetters, setMutableLetters] = useState<string[]>(gameLetters);
     const [userLetters, setUserLetters] = useState<string[]>([]);
@@ -54,20 +69,31 @@ export default function Anagrams({ words }) {
 
     const [score, setScore] = useState<number>(0);
 
+    const [countdown, setCountdown] = useState<number>(60);
+    const countdownRef = useRef(countdown);
+
+    useEffect(() => {
+        countdownRef.current = countdown;
+    }, [countdown]);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (countdown === 0) {
-                setGameState(GAME_STATE.FINISHED);
-                clearInterval(interval);
-            }
-
-            if (gameState === GAME_STATE.PLAYING && countdown > 0) {
-                setCountdown(countdown - 1);
+            if (countdownRef.current === 0) {
+                setGameState(GameState.FINISHED);
             }
         }, 1000);
         return () => clearInterval(interval);
-    });
+    }, []);
+
+    useEffect(() => {
+        if (gameState === GameState.PLAYING && countdownRef.current > 0) {
+            const timeout = setTimeout(() => {
+                setCountdown(countdown - 1);
+            }, 1000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [gameState, countdown]);
 
     useEffect(() => {
         function handleKeyDown(e) {
@@ -77,9 +103,11 @@ export default function Anagrams({ words }) {
             }
             else if (e.key === 'Enter') {
                 handleWordSubmit();
-            } else if (e.keyCode >= 65 && e.keyCode <= 90 && userLetters.length < 6 &&
-                gameLetters.includes(e.key) && gameState === GAME_STATE.PLAYING &&
-                !userLetters.includes(e.key)
+            } else if (e.keyCode >= 65 && e.keyCode <= 90
+                && userLetters.length < 7
+                && gameLetters.includes(e.key)
+                && gameState === GameState.PLAYING
+                // && !userLetters.includes(e.key)
             ) {
                 setUserLetters([...userLetters, e.key]);
 
@@ -97,19 +125,19 @@ export default function Anagrams({ words }) {
 
 
 
-    if (gameState === GAME_STATE.INIT) {
+    if (gameState === GameState.INIT) {
         return (
             <div>
                 <Navigation />
                 <StartDialog
-                    setPlaying={() => setGameState(GAME_STATE.PLAYING)}
+                    setPlaying={() => setGameState(GameState.PLAYING)}
                     state={gameState}
                 />
             </div>
         );
     }
 
-    if (gameState === GAME_STATE.FINISHED) {
+    if (gameState === GameState.FINISHED) {
         return (
             <div>
                 <Navigation />
@@ -144,6 +172,7 @@ export default function Anagrams({ words }) {
                             <Box letter={userLetters[3]} onClick={()=>clearLetter(3)} />
                             <Box letter={userLetters[4]} onClick={()=>clearLetter(4)} />
                             <Box letter={userLetters[5]} onClick={()=>clearLetter(5)} />
+                            <Box letter={userLetters[6]} onClick={()=>clearLetter(6)} />
                             <ArrowLongRightIcon
                                 className="w-8 h-8 m-2 hover:cursor-pointer hover:text-blue-700"
                                 onClick={handleWordSubmit}
@@ -159,7 +188,10 @@ export default function Anagrams({ words }) {
                                 key={index}
                                 primaryTheme={true}
                                 onClick={() => {
-                                    if (userLetters.length < 6 && !userIndices.includes(index) && gameState === GAME_STATE.PLAYING) {
+                                    if (userLetters.length < 7
+                                        // && !userIndices.includes(index)
+                                        && gameState === GameState.PLAYING
+                                    ) {
                                         setUserLetters([...userLetters, letter]);
                                         setUserIndices([...userIndices, index]);
                                     }
@@ -189,7 +221,7 @@ function StartDialog({ setPlaying, state }) {
         <>
             <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog open={state === GAME_STATE.INIT} onClose={setPlaying} className="relative z-50 flex justify-center items-center">
+                <Dialog open={state === GameState.INIT} onClose={setPlaying} className="relative z-50 flex justify-center items-center">
                     <Dialog.Panel className="w-full max-w-sm rounded bg-white">
                         <Dialog.Title className="text-4xl text-center">Anagrams</Dialog.Title>
                         <Dialog.Description className="text-center">Rearrange the letters to form words!</Dialog.Description>
@@ -271,54 +303,12 @@ function isPseudoAnagram(str: string, letters: string[]): boolean {
 }
 
 function generateLetterSet(allWords: string[]): string[] {
-    // For each day, generate a set of 6 letters
-
-    //Check the current day
     const date: Date = new Date();
     const seed = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate();
     const random = new seedrandom(seed);
 
-    const sixLetterWords: string[] = allWords.filter((word) => word.length === 6);
-
-    const randomIndex = Math.floor(random() * sixLetterWords.length);
-    const randomWord = sixLetterWords[randomIndex];
+    const randomIndex = Math.floor(random() * allWords.length);
+    const randomWord = allWords[randomIndex];
+    console.log("Selected Word: ", randomWord);
     return shuffleLetters(shuffleLetters(randomWord.split('')));
-
-    // const allLetters: string[] = [];
-    // // Generate the letter set
-    // for (let i = 0; i < 26; i++) {
-    //     allLetters.push(String.fromCharCode(97 + i));
-    // }
-    // const weights: number[] = [16,4,4,8,22,4,6,6,14,2,2,8,4,10,14,4,2,12,8,10,8,2,2,2,4,2];
-    //
-    //
-    // let totalWeight = 0;
-    // weights.forEach((weight) => {
-    //     totalWeight += weight;
-    // });
-    //
-    // for (let i = 0; i < weights.length; i++) {
-    //     weights[i] = weights[i] / totalWeight;
-    // }
-    //
-    // const letters: string[] = [];
-    //
-    // // Generate a set of 6 letters as per the weights
-    // for (let i = 0; i < 6; i++) {
-    //     const randomNum = random();
-    //     let sum = 0;
-    //     for (let j = 0; j < weights.length; j++) {
-    //         sum += weights[j];
-    //         if (randomNum <= sum) {
-    //            // If there are 2 or more of the same letter, only add it if there are less than 2 of it
-    //             if (letters.includes(allLetters[j]) && letters.filter((letter) => letter === allLetters[j]).length >= 2) {
-    //                 i--;
-    //                 break;
-    //             }
-    //             letters.push(allLetters[j]);
-    //             break;
-    //         }
-    //     }
-    // }
-    //return letters;
 }
