@@ -26,9 +26,9 @@ export default function AboutPage() {
                         <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
                             About Me
                         </h1>
-                        <span className="flex justify-center">
+                        <div className="flex flex-col lg:flex-row items-center justify-center">
                             <Image src={profilePic} alt="Profile Picture" width={200} height={200}
-                                   className="rounded-full lg:block"/>
+                                   className="rounded-full mb-4 lg:mb-0 lg:mr-8"/>
                             <div>
                                 <p className="text-lg font-normal text-gray-500 pl-4 lg:text-xl sm:pr-4 lg:pr-12 dark:text-gray-400">
                                     I'm a Software Engineer at IBM Federal Consulting.
@@ -43,7 +43,7 @@ export default function AboutPage() {
                                     I also enjoy weightlifting, playing video games, and cooking.
                                 </p>
                             </div>
-                        </span>
+                        </div>
 
                         <div
                             className="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
