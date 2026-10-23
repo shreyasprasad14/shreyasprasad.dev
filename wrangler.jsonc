@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Kept from the previous site so the shreyasprasad.dev custom domain stays attached
+  "name": "shreyasprasad-dev",
+  "compatibility_date": "2026-10-23",
+  // Static assets only: the site and every app are prebuilt into ./dist
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

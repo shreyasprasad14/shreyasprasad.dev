@@ -1,0 +1,58 @@
+---
+// A plain list of linked rows: notes and apps, on the homepage and their index pages.
+export interface Entry {
+  href: string;
+  title: string;
+  meta: string;
+  description?: string;
+}
+
+interface Props {
+  entries: Entry[];
+}
+
+const {entries} = Astro.props;
+---
+
+<ul class="entries">
+  {
+    entries.map(({href, title, meta, description}) => (
+      <li>
+        <a href={href}>{title}</a>
+        <span class="meta mono muted">{meta}</span>
+        {description && <p class="muted">{description}</p>}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .entries {
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 16px;
+    align-items: baseline;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  a {
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .meta {
+    font-size: 0.8125rem;
+  }
+
+  p {
+    grid-column: 1 / -1;
+    font-size: var(--step--1);
+  }
+</style>

@@ -1,0 +1,67 @@
+---
+import Base from "../../layouts/Base.astro";
+import {getNewest} from "../../lib/content";
+
+const apps = await getNewest("apps");
+---
+
+<Base title="Apps" description="Small apps that run entirely in the browser.">
+  <div class="wrap wrap-wide">
+    <h1>Apps</h1>
+    <p class="intro muted">Small things that run entirely in your browser. No accounts, no servers.</p>
+    <ul class="grid">
+      {
+        apps.map((app) => (
+          <li class="card">
+            <h2>
+              <a href={`/apps/${app.id}/`}>{app.data.title}</a>
+            </h2>
+            <p class="muted">{app.data.description}</p>
+            <ul class="tags" aria-label="Tags">
+              {app.data.tags.map((tag) => <li>{tag}</li>)}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>
+
+<style>
+  h1 {
+    font-size: var(--step-2);
+  }
+
+  .intro {
+    margin-block: 10px 32px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 20px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+
+  h2 {
+    font-size: var(--step-0);
+  }
+
+  h2 a {
+    text-decoration: none;
+  }
+
+  .card .tags {
+    margin-top: auto;
+  }
+</style>

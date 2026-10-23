@@ -1,0 +1,45 @@
+---
+import Base from "../../layouts/Base.astro";
+import EntryList from "../../components/EntryList.astro";
+import {formatDate, getNewest} from "../../lib/content";
+
+const notes = await getNewest("notes");
+---
+
+<Base title="Notes" description="Notes on distributed systems, retrieval and running LLMs in production.">
+  <div class="wrap">
+    <h1>Notes</h1>
+    <p class="intro muted">
+      Write-ups of things learned while building. Also available as an <a href="/rss.xml">RSS feed</a>.
+    </p>
+    {
+      notes.length > 0 ? (
+        <EntryList
+          entries={notes.map((note) => ({
+            href: `/notes/${note.id}/`,
+            title: note.data.title,
+            meta: formatDate(note.data.date),
+            description: note.data.summary,
+          }))}
+        />
+      ) : (
+        <p class="empty">Nothing published yet. The first note is on its way.</p>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  h1 {
+    font-size: var(--step-2);
+  }
+
+  .intro {
+    margin-block: 10px 32px;
+  }
+
+  .empty {
+    padding-block: 20px;
+    border-top: 1px solid var(--rule);
+  }
+</style>

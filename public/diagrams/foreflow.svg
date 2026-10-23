@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 290" role="img" aria-labelledby="t">
+  <title id="t">Foreflow ingestion: Polymarket and Kalshi feeds are normalized by the ingestor, sharded over NATS by market, evaluated by one replica per shard, and fired matches are written to an audit log</title>
+  <style>
+    .box { fill: #fafaf8; stroke: #c9c9c2; stroke-width: 1.25; }
+    .key { fill: #eaf1fa; stroke: #0a58a8; }
+    .h { font: 600 13px Inter, system-ui, sans-serif; fill: #18181b; }
+    .s { font: 400 11.5px Inter, system-ui, sans-serif; fill: #5c5c66; }
+    .m { font: 400 11px "JetBrains Mono", ui-monospace, monospace; fill: #5c5c66; }
+    .line { stroke: #8a8a93; stroke-width: 1.25; fill: none; }
+    .dash { stroke-dasharray: 5 4; }
+    .arrow { fill: #8a8a93; }
+    @media (prefers-color-scheme: dark) {
+      .box { fill: #121214; stroke: #3a3a40; }
+      .key { fill: #16233a; stroke: #7db6ff; }
+      .h { fill: #ececee; }
+      .s, .m { fill: #a1a1aa; }
+      .line { stroke: #6b6b74; }
+      .arrow { fill: #6b6b74; }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="arrow" d="M0 0 L10 5 L0 10 z"/>
+    </marker>
+  </defs>
+
+  <rect class="box" x="8" y="52" width="112" height="50" rx="6"/>
+  <text class="h" x="64" y="74" text-anchor="middle">Polymarket</text>
+  <text class="s" x="64" y="90" text-anchor="middle">CLOB websocket</text>
+
+  <rect class="box" x="8" y="152" width="112" height="50" rx="6"/>
+  <text class="h" x="64" y="174" text-anchor="middle">Kalshi</text>
+  <text class="s" x="64" y="190" text-anchor="middle">REST polling</text>
+
+  <rect class="box" x="148" y="95" width="112" height="64" rx="6"/>
+  <text class="h" x="204" y="120" text-anchor="middle">Ingestor</text>
+  <text class="s" x="204" y="137" text-anchor="middle">normalizes to</text>
+  <text class="m" x="204" y="151" text-anchor="middle">MarketUpdate</text>
+
+  <rect class="box key" x="288" y="95" width="120" height="64" rx="6"/>
+  <text class="h" x="348" y="120" text-anchor="middle">NATS</text>
+  <text class="m" x="348" y="137" text-anchor="middle">market.shard.N</text>
+  <text class="m" x="348" y="151" text-anchor="middle">hash(id) % N</text>
+
+  <rect class="box" x="436" y="30" width="112" height="44" rx="6"/>
+  <text class="h" x="492" y="50" text-anchor="middle">Evaluator 0</text>
+  <text class="s" x="492" y="65" text-anchor="middle">owns shard 0</text>
+  <rect class="box" x="436" y="105" width="112" height="44" rx="6"/>
+  <text class="h" x="492" y="125" text-anchor="middle">Evaluator 1</text>
+  <text class="s" x="492" y="140" text-anchor="middle">owns shard 1</text>
+  <rect class="box" x="436" y="180" width="112" height="44" rx="6"/>
+  <text class="h" x="492" y="200" text-anchor="middle">Evaluator N−1</text>
+  <text class="s" x="492" y="215" text-anchor="middle">StatefulSet + HPA</text>
+
+  <rect class="box" x="576" y="52" width="96" height="50" rx="6"/>
+  <text class="h" x="624" y="74" text-anchor="middle">Alert pool</text>
+  <text class="s" x="624" y="90" text-anchor="middle">bounded workers</text>
+
+  <rect class="box" x="576" y="152" width="96" height="50" rx="6"/>
+  <text class="h" x="624" y="174" text-anchor="middle">Postgres</text>
+  <text class="m" x="624" y="190" text-anchor="middle">workflow_runs</text>
+
+  <path class="line" d="M120 77 L146 112" marker-end="url(#a)"/>
+  <path class="line" d="M120 177 L146 142" marker-end="url(#a)"/>
+  <path class="line" d="M260 127 H286" marker-end="url(#a)"/>
+  <path class="line" d="M408 116 L434 56" marker-end="url(#a)"/>
+  <path class="line" d="M408 127 H434" marker-end="url(#a)"/>
+  <path class="line" d="M408 138 L434 198" marker-end="url(#a)"/>
+  <path class="line" d="M548 52 L574 70" marker-end="url(#a)"/>
+  <path class="line" d="M548 127 L574 90" marker-end="url(#a)"/>
+  <path class="line" d="M624 102 V150" marker-end="url(#a)"/>
+  <path class="line dash" d="M576 194 L550 202" marker-end="url(#a)"/>
+
+  <text class="s" x="340" y="262" text-anchor="middle">Sharding by market keeps each market's last price on one replica, so crossing triggers stay</text>
+  <text class="s" x="340" y="278" text-anchor="middle">consistent. Evaluators reload active workflows from Postgres every 15 seconds (dashed).</text>
+</svg>

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 290" role="img" aria-labelledby="t">
+  <title id="t">agentd architecture: the API server writes runs to Postgres, workers lease runs, fold the event log, and call the model, the sandbox and MCP servers</title>
+  <style>
+    .box { fill: #fafaf8; stroke: #c9c9c2; stroke-width: 1.25; }
+    .key { fill: #eaf1fa; stroke: #0a58a8; }
+    .ghost { stroke-dasharray: 5 4; }
+    .h { font: 600 13px Inter, system-ui, sans-serif; fill: #18181b; }
+    .s { font: 400 11.5px Inter, system-ui, sans-serif; fill: #5c5c66; }
+    .m { font: 400 11px "JetBrains Mono", ui-monospace, monospace; fill: #5c5c66; }
+    .line { stroke: #8a8a93; stroke-width: 1.25; fill: none; }
+    .arrow { fill: #8a8a93; }
+    @media (prefers-color-scheme: dark) {
+      .box { fill: #121214; stroke: #3a3a40; }
+      .key { fill: #16233a; stroke: #7db6ff; }
+      .h { fill: #ececee; }
+      .s, .m { fill: #a1a1aa; }
+      .line { stroke: #6b6b74; }
+      .arrow { fill: #6b6b74; }
+    }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="arrow" d="M0 0 L10 5 L0 10 z"/>
+    </marker>
+  </defs>
+
+  <rect class="box" x="8" y="110" width="104" height="64" rx="6"/>
+  <text class="h" x="60" y="136" text-anchor="middle">Client</text>
+  <text class="m" x="60" y="154" text-anchor="middle">POST /v1/runs</text>
+  <text class="m" x="60" y="167" text-anchor="middle">SSE stream</text>
+
+  <rect class="box" x="140" y="110" width="110" height="64" rx="6"/>
+  <text class="h" x="195" y="136" text-anchor="middle">API server</text>
+  <text class="s" x="195" y="154" text-anchor="middle">writes intent,</text>
+  <text class="s" x="195" y="167" text-anchor="middle">never calls a model</text>
+
+  <rect class="box key" x="278" y="58" width="132" height="168" rx="6"/>
+  <text class="h" x="344" y="84" text-anchor="middle">Postgres</text>
+  <text class="m" x="344" y="108" text-anchor="middle">runs</text>
+  <text class="m" x="344" y="126" text-anchor="middle">run_events</text>
+  <text class="m" x="344" y="144" text-anchor="middle">tool_calls</text>
+  <text class="m" x="344" y="162" text-anchor="middle">chunks (pgvector)</text>
+  <text class="m" x="344" y="180" text-anchor="middle">BM25 statistics</text>
+  <text class="s" x="344" y="208" text-anchor="middle">append-only log</text>
+
+  <rect class="box" x="440" y="58" width="112" height="60" rx="6"/>
+  <text class="h" x="496" y="83" text-anchor="middle">Worker A</text>
+  <text class="s" x="496" y="101" text-anchor="middle">holds the lease</text>
+
+  <rect class="box ghost" x="440" y="166" width="112" height="60" rx="6"/>
+  <text class="h" x="496" y="191" text-anchor="middle">Worker B</text>
+  <text class="s" x="496" y="209" text-anchor="middle">claims on lapse</text>
+
+  <rect class="box" x="580" y="30" width="92" height="50" rx="6"/>
+  <text class="h" x="626" y="52" text-anchor="middle">Model</text>
+  <text class="s" x="626" y="68" text-anchor="middle">Ollama, Claude</text>
+
+  <rect class="box" x="580" y="96" width="92" height="50" rx="6"/>
+  <text class="h" x="626" y="118" text-anchor="middle">Sandbox</text>
+  <text class="s" x="626" y="134" text-anchor="middle">Docker, no net</text>
+
+  <rect class="box" x="580" y="162" width="92" height="50" rx="6"/>
+  <text class="h" x="626" y="184" text-anchor="middle">MCP</text>
+  <text class="s" x="626" y="200" text-anchor="middle">stdio, HTTP</text>
+
+  <path class="line" d="M112 142 H138" marker-end="url(#a)"/>
+  <path class="line" d="M250 142 H276" marker-end="url(#a)"/>
+  <path class="line" d="M412 88 H438" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path class="line ghost" d="M412 196 H438" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path class="line" d="M552 76 L578 58" marker-end="url(#a)"/>
+  <path class="line" d="M552 92 L578 118" marker-end="url(#a)"/>
+  <path class="line" d="M548 118 L586 160" marker-end="url(#a)"/>
+
+  <text class="s" x="340" y="262" text-anchor="middle">Run state is a fold over run_events. A worker that dies mid-run is replaced by one that</text>
+  <text class="s" x="340" y="278" text-anchor="middle">folds the same log and continues from the last committed step.</text>
+</svg>

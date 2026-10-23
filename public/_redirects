@@ -1,0 +1,7 @@
+# Cloudflare static asset redirects: https://developers.cloudflare.com/workers/static-assets/redirects/
+/resume     /resume.pdf       302
+
+# Paths from the previous version of the site
+/anagrams   /apps/anagrams/   301
+/about      /                 301
+/projects   /                 301
