@@ -1,0 +1,28 @@
+name: Deploy to Cloudflare
+'on':
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  build_and_deploy:
+    if: "${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./hosting
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hosting/package-lock.json
+      - run: npm ci && npm run build
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: '${{ secrets.CLOUDFLARE_API_TOKEN }}'
+          accountId: '${{ secrets.CLOUDFLARE_ACCOUNT_ID }}'
+          workingDirectory: hosting
+          # main deploys to production; PRs upload a preview version without promoting it
+          command: "${{ github.event_name == 'push' && 'deploy' || 'versions upload' }}"

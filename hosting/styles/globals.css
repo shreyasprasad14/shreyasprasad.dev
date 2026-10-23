@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --paper: 250 249 246;
+    --ink: 28 27 25;
+    --muted: 104 100 94;
+    --rule: 226 223 215;
+    --accent: 178 62 30;
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --paper: 22 21 19;
+        --ink: 233 230 223;
+        --muted: 156 151 142;
+        --rule: 46 44 40;
+        --accent: 232 122 88;
+        color-scheme: dark;
+    }
+}
+
+@layer base {
+    html {
+        @apply bg-paper text-ink antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        @apply bg-paper font-sans;
+    }
+
+    ::selection {
+        background: rgb(var(--accent) / 0.2);
+    }
+
+    :focus-visible {
+        outline: 2px solid rgb(var(--accent));
+        outline-offset: 3px;
+        border-radius: 1px;
+    }
+}
+
+@layer components {
+    /* Underlined inline link, used inside prose */
+    .link {
+        @apply underline decoration-rule decoration-1 underline-offset-[3px] transition-colors hover:text-accent hover:decoration-accent;
+    }
+
+    .prose-body p + p {
+        @apply mt-4;
+    }
+}

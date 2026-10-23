@@ -1,10 +1,8 @@
 import {getStartingWords, getWordData} from "../data/worddata";
-import Navigation from "../components/Navbar";
-import {ArrowLongRightIcon, ArrowPathRoundedSquareIcon} from "@heroicons/react/24/solid";
+import Layout from "../components/Layout";
 import {useEffect, useRef, useState} from "react";
-import {Button} from "flowbite-react";
-import {Dialog, Transition} from "@headlessui/react";
-import toast, {Toaster} from "react-hot-toast";
+import {Dialog} from "@headlessui/react";
+import toast from "react-hot-toast";
 
 const seedrandom = require('seedrandom');
 
@@ -125,22 +123,20 @@ export default function Anagrams({ words, starting_words }) {
 
     if (gameState === GameState.INIT) {
         return (
-            <div>
-                <Navigation />
+            <Layout title="Anagrams">
                 <StartDialog
                     setPlaying={() => setGameState(GameState.PLAYING)}
                     state={gameState}
                 />
-            </div>
+            </Layout>
         );
     }
 
     if (gameState === GameState.FINISHED) {
         return (
-            <div>
-                <Navigation />
+            <Layout title="Anagrams">
                 <EndDialog  score={score} words={userWords} />
-            </div>
+            </Layout>
         );
     }
 
@@ -157,28 +153,20 @@ export default function Anagrams({ words, starting_words }) {
     }
 
     return (
-        <div>
-            <Navigation />
-            <div className="h-full">
-                <h1 className="text-4xl text-center">Anagrams</h1>
-                <div className="flex justify-center items-center">
-                    <div className="flex flex-col justify-center items-center">
-                        <div className="flex justify-center items-center">
-                            <Box letter={userLetters[0]} onClick={()=>clearLetter(0)} />
-                            <Box letter={userLetters[1]} onClick={()=>clearLetter(1)} />
-                            <Box letter={userLetters[2]} onClick={()=>clearLetter(2)} />
-                            <Box letter={userLetters[3]} onClick={()=>clearLetter(3)} />
-                            <Box letter={userLetters[4]} onClick={()=>clearLetter(4)} />
-                            <Box letter={userLetters[5]} onClick={()=>clearLetter(5)} />
-                            <Box letter={userLetters[6]} onClick={()=>clearLetter(6)} />
-                            <ArrowLongRightIcon
-                                className="w-8 h-8 m-2 hover:cursor-pointer hover:text-blue-700"
-                                onClick={handleWordSubmit}
-                            />
-                        </div>
-                    </div>
+        <Layout title="Anagrams">
+            <div className="flex flex-col items-center pt-8 sm:pt-12">
+                <h1 className="font-serif text-[2.5rem] leading-tight tracking-[-0.015em]">Anagrams</h1>
+                <div className="mt-6 flex gap-12 font-mono text-sm text-muted">
+                    <span>Time <span className="text-ink tabular-nums">{countdown}</span></span>
+                    <span>Score <span className="text-accent tabular-nums">{score}</span></span>
                 </div>
-                <div className="flex justify-center items-center hover:cursor-pointer">
+
+                <div className="mt-10 flex gap-1.5 sm:gap-2">
+                    {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+                        <Box key={i} letter={userLetters[i]} onClick={() => clearLetter(i)} />
+                    ))}
+                </div>
+                <div className="mt-4 flex gap-1.5 sm:gap-2">
                     {mutableLetters.map((letter,index) => {
                         return (
                             <Box
@@ -198,69 +186,52 @@ export default function Anagrams({ words, starting_words }) {
                             />
                         )
                     })}
-                    {/*<ArrowPathRoundedSquareIcon*/}
-                    {/*    className="w-8 h-8 m-2 hover:cursor-pointer hover:text-blue-700"*/}
-                    {/*    onClick={() => setMutableLetters(shuffleLetters(mutableLetters))}*/}
-                    {/*/>*/}
+                    {/*<button onClick={() => setMutableLetters(shuffleLetters(mutableLetters))}>Shuffle</button>*/}
                 </div>
-                <div className="flex justify-center items-center">
-                    <h1 className="text-4xl">{countdown}</h1>
-                </div>
-                <div className="flex justify-center items-center">
-                    <h1 className="text-4xl text-blue-700">{score}</h1>
-                </div>
+                <button type="button" onClick={handleWordSubmit} className={buttonClass + " mt-8"}>
+                    Submit word
+                </button>
             </div>
-        </div>
+        </Layout>
     )
 }
 
+const buttonClass = "bg-ink px-5 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent";
+const panelClass = "w-full max-w-sm border border-rule bg-paper p-8 text-center";
+
 function StartDialog({ setPlaying, state }) {
     return (
-        <>
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <Dialog open={state === GameState.INIT} onClose={setPlaying} className="relative z-50">
+            <div className="fixed inset-0 bg-ink/20" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog open={state === GameState.INIT} onClose={setPlaying} className="relative z-50 flex justify-center items-center">
-                    <Dialog.Panel className="w-full max-w-sm rounded bg-white">
-                        <Dialog.Title className="text-4xl text-center">Anagrams</Dialog.Title>
-                        <Dialog.Description className="text-center">Rearrange the letters to form words!</Dialog.Description>
-                        <div className="flex justify-center items-center">
-                            <Button onClick={setPlaying}>Start</Button>
-                        </div>
-                    </Dialog.Panel>
-                </Dialog>
+                <Dialog.Panel className={panelClass}>
+                    <Dialog.Title className="font-serif text-3xl">Anagrams</Dialog.Title>
+                    <Dialog.Description className="mt-2 text-muted">Rearrange the letters to form words.</Dialog.Description>
+                    <button type="button" onClick={setPlaying} className={buttonClass + " mt-6"}>Start</button>
+                </Dialog.Panel>
             </div>
-        </>
+        </Dialog>
     )
 }
 
 function EndDialog({ score, words }) {
     const sortedWords = words.sort((a, b) => b.length - a.length);
     return (
-        <>
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <Dialog open={true} onClose={() => {}} className="relative z-50">
+            <div className="fixed inset-0 bg-ink/20" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog open={true} onClose={() => {}} className="relative z-50 flex justify-center items-center">
-                    <Dialog.Panel className="w-full max-w-sm rounded bg-white">
-                        <Dialog.Title className="text-4xl text-center">Game Over!</Dialog.Title>
-                        <Dialog.Description className="text-center">Your score was: </Dialog.Description>
-                        <div className="flex justify-center items-center text-blue-700 text-3xl">
-                            {score}
-                        </div>
-                        <div className="flex justify-center items-center">
-                            <div className="flex flex-col justify-center items-center">
-                                {sortedWords.map((word, index) => {
-                                    return (
-                                        <div key={index} className="flex justify-center items-center">
-                                            <div className="text-2xl text-center">{word}</div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                    </Dialog.Panel>
-                </Dialog>
+                <Dialog.Panel className={panelClass}>
+                    <Dialog.Title className="font-serif text-3xl">Time's up</Dialog.Title>
+                    <Dialog.Description className="mt-2 text-muted">Your score</Dialog.Description>
+                    <div className="font-mono text-3xl text-accent">{score}</div>
+                    <ul className="mt-6 max-h-64 overflow-y-auto border-t border-rule pt-4 font-mono uppercase">
+                        {sortedWords.map((word, index) => (
+                            <li key={index}>{word}</li>
+                        ))}
+                    </ul>
+                </Dialog.Panel>
             </div>
-        </>
+        </Dialog>
     )
 }
 
@@ -276,17 +247,20 @@ function shuffleLetters(letters: string[]): string[] {
 }
 
 function Box({ letter, primaryTheme=false, onClick=null, isUsed=false }) {
+    const isEmpty = letter === "" || letter === undefined;
     return (
-        <div
+        <button
+            type="button"
             onClick={onClick}
-            className={"w-16 h-16 m-2 flex justify-center items-center " +
-                (isUsed ? "bg-gray-400 hover:bg-gray-400 " : "") +
-                (primaryTheme ? "bg-blue-700 " : "bg-gray-200 ") +
-                (primaryTheme ? "hover:bg-blue-800 " : "hover:bg-gray-300 ") +
-                (letter === "" || letter === undefined || isUsed ? "hover:cursor-not-allowed" : "hover:cursor-pointer")
+            disabled={isEmpty || isUsed}
+            className={"flex h-11 w-11 items-center justify-center font-mono text-2xl uppercase transition-colors sm:h-14 sm:w-14 sm:text-3xl " +
+                (primaryTheme
+                    ? "bg-ink text-paper hover:bg-accent disabled:bg-ink/25 "
+                    : "border border-rule text-ink hover:border-muted ") +
+                "disabled:cursor-not-allowed disabled:hover:border-rule"
         }>
-            <h1 className={"text-4xl " + (primaryTheme ? "text-white" : "text-black")}>{letter}</h1>
-        </div>
+            {letter}
+        </button>
     )
 }
 
