@@ -1,6 +1,7 @@
 import type {ComponentChildren} from "preact";
 import {useEffect, useRef, useState} from "preact/hooks";
 import seedrandom from "seedrandom";
+import ThemeToggle from "./ThemeToggle";
 
 enum GameState {
   LOADING,
@@ -121,7 +122,10 @@ export default function App() {
     <div class="page">
       <header class="topbar">
         <a href="https://shreyasprasad.dev/apps/">← Apps</a>
-        <a href="https://shreyasprasad.dev/">shreyasprasad.dev</a>
+        <div class="topbar-end">
+          <a href="https://shreyasprasad.dev/">shreyasprasad.dev</a>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main class="game">

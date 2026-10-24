@@ -35,6 +35,13 @@ const nav = [
     <link rel="alternate" type="application/rss+xml" title={`${site.name}: Notes`} href="/rss.xml" />
     <meta name="theme-color" content="#fafaf8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)" />
+    <!-- Runs before first paint so a saved theme never flashes the other one -->
+    <script is:inline>
+      try {
+        const theme = document.cookie.match(/(?:^|;\s*)theme=(light|dark)(?:;|$)/)?.[1];
+        if (theme) document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
@@ -53,19 +60,27 @@ const nav = [
     <a class="skip" href="#main">Skip to content</a>
     <header class="wrap site-header">
       <a class="home" href="/" aria-current={path === "/" ? "page" : undefined}>{site.name}</a>
-      <nav aria-label="Main">
-        <ul>
-          {
-            nav.map(({href, label}) => (
-              <li>
-                <a href={href} aria-current={path.startsWith(href) && href !== "/#projects" ? "page" : undefined}>
-                  {label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+      <div class="header-end">
+        <nav aria-label="Main">
+          <ul>
+            {
+              nav.map(({href, label}) => (
+                <li>
+                  <a href={href} aria-current={path.startsWith(href) && href !== "/#projects" ? "page" : undefined}>
+                    {label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Dark theme">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
     </header>
 
     <main id="main">
@@ -83,6 +98,16 @@ const nav = [
     </footer>
   </body>
 </html>
+
+<script>
+  import {toggleTheme, watchTheme, type Theme} from "../lib/theme";
+
+  const button = document.querySelector<HTMLButtonElement>(".theme-toggle")!;
+  const show = (theme: Theme) => button.setAttribute("aria-pressed", String(theme === "dark"));
+
+  button.addEventListener("click", () => show(toggleTheme()));
+  watchTheme(show);
+</script>
 
 <style>
   .skip {
@@ -112,6 +137,28 @@ const nav = [
     font-weight: 600;
     letter-spacing: -0.01em;
     text-decoration: none;
+  }
+
+  .header-end {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* Negative margin keeps a 28px hit target without pushing the header out */
+  .theme-toggle {
+    display: grid;
+    margin: -6px;
+    padding: 6px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    color: var(--text);
   }
 
   nav ul,

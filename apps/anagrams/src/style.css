@@ -13,8 +13,9 @@
   color-scheme: light;
 }
 
+/* Dark follows the OS unless the theme toggle set data-theme. Keep these two blocks in sync */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #121214;
     --surface: #1b1b1f;
     --text: #ececee;
@@ -25,6 +26,18 @@
     --error: #ff7b72;
     color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #121214;
+  --surface: #1b1b1f;
+  --text: #ececee;
+  --muted: #a1a1aa;
+  --rule: #2b2b30;
+  --accent: #7db6ff;
+  --success: #4ac26b;
+  --error: #ff7b72;
+  color-scheme: dark;
 }
 
 *,
@@ -72,6 +85,28 @@ a:hover {
 .topbar {
   display: flex;
   justify-content: space-between;
+}
+
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Negative margin keeps a 28px hit target without pushing the bar out */
+.theme-toggle {
+  display: grid;
+  margin: -6px;
+  padding: 6px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: var(--text);
 }
 
 .game {

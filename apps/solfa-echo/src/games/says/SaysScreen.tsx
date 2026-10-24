@@ -7,6 +7,7 @@ import Ladder, {type Mark} from "../../ui/Ladder";
 import {useSurface, useViewportHeight} from "../../ui/layout";
 import {useNoteKeyboard} from "../../ui/NoteInput";
 import Piano from "../../ui/Piano";
+import ThemeToggle from "../../ui/ThemeToggle";
 import {bestKey, loadBests, saveBest} from "./bests";
 import {initialState, isCorrect, step, TIMING, type Effect, type SaysEvent, type SaysState} from "./SaysGame";
 import {loadSettings, saveSettings, type SaysSettings} from "./settings";
@@ -211,7 +212,10 @@ export default function SaysScreen() {
     <div class="page">
       <header class="topbar">
         <a href="https://shreyasprasad.dev/apps/">← Apps</a>
-        <a href="https://shreyasprasad.dev/">shreyasprasad.dev</a>
+        <div class="topbar-end">
+          <a href="https://shreyasprasad.dev/">shreyasprasad.dev</a>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main class="landing">
