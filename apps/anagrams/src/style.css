@@ -177,6 +177,7 @@ h1 {
   font-size: clamp(1.25rem, 5vw, 1.75rem);
   text-transform: uppercase;
   cursor: pointer;
+  touch-action: manipulation;
   transition: background-color 0.1s, border-color 0.1s;
 }
 
@@ -195,8 +196,9 @@ h1 {
   background: var(--accent);
 }
 
+/* iOS ignores touch-action on disabled buttons, so let taps fall through to the row instead */
 .tile:disabled {
-  cursor: default;
+  pointer-events: none;
 }
 
 .tile.primary:disabled {
@@ -213,6 +215,7 @@ h1 {
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
+  touch-action: manipulation;
   transition: background-color 0.1s;
 }
 
