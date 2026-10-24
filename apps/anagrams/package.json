@@ -8,12 +8,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "preact": "^11.0.2",
-    "seedrandom": "^3.0.5"
+    "preact": "^11.0.2"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
-    "@types/seedrandom": "^3.0.8",
     "typescript": "^5.9.3",
     "vite": "^8.3.5"
   }

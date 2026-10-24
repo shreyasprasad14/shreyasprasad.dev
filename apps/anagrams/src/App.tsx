@@ -1,6 +1,5 @@
 import type {ComponentChildren} from "preact";
-import {useEffect, useRef, useState} from "preact/hooks";
-import seedrandom from "seedrandom";
+import {useEffect, useMemo, useRef, useState} from "preact/hooks";
 import ThemeToggle from "./ThemeToggle";
 
 enum GameState {
@@ -19,6 +18,7 @@ type Toast = {id: number; text: string; kind: "success" | "error"};
 
 export default function App() {
   const [dictionary, setDictionary] = useState<Set<string>>(new Set());
+  const [commonWords, setCommonWords] = useState<string[]>([]);
   const [gameLetters, setGameLetters] = useState<string[]>([]);
   const [gameState, setGameState] = useState<GameState>(GameState.LOADING);
   const [loadError, setLoadError] = useState(false);
@@ -32,9 +32,10 @@ export default function App() {
   const toastId = useRef(0);
 
   useEffect(() => {
-    Promise.all([loadWords("dictionary.txt"), loadWords("starters.txt")])
-      .then(([words, starters]) => {
+    Promise.all([loadWords("dictionary.txt"), loadWords("common.txt"), loadWords("starters.txt")])
+      .then(([words, common, starters]) => {
         setDictionary(new Set(words));
+        setCommonWords(common);
         setGameLetters(generateLetterSet(starters));
         setGameState(GameState.INIT);
       })
@@ -58,6 +59,12 @@ export default function App() {
   }, [toast]);
 
   const showToast = (text: string, kind: Toast["kind"]) => setToast({id: ++toastId.current, text, kind});
+
+  // Today's common answers, for the end screen; the letters don't change after loading
+  const possibleWords = useMemo(
+    () => commonWords.filter((word) => isPseudoAnagram(word, gameLetters)),
+    [commonWords, gameLetters],
+  );
 
   const addLetter = (letter: string, index: number) => {
     if (gameState !== GameState.PLAYING || userLetters.length >= MAX_LETTERS) return;
@@ -192,15 +199,7 @@ export default function App() {
           <Panel title="Time's up">
             <p class="muted">Your score</p>
             <p class="final">{score}</p>
-            {userWords.length > 0 && (
-              <ul class="words">
-                {[...userWords]
-                  .sort((a, b) => b.length - a.length)
-                  .map((word) => (
-                    <li key={word}>{word}</li>
-                  ))}
-              </ul>
-            )}
+            <Answers possible={possibleWords} found={userWords} />
             <button type="button" class="button" onClick={start} autoFocus>
               Play again
             </button>
@@ -225,6 +224,49 @@ function Panel({title, children}: {title: string; children: ComponentChildren}) 
       <h2>{title}</h2>
       {children}
     </section>
+  );
+}
+
+// Every common answer plus any rarer words the player found, highest scoring first, with the
+// player's words marked
+function Answers({possible, found}: {possible: string[]; found: string[]}) {
+  const foundSet = new Set(found);
+  const all = [...new Set([...possible, ...found])].sort((a, b) => b.length - a.length || a.localeCompare(b));
+  const groups = new Map<number, string[]>();
+  for (const word of all) groups.set(word.length, [...(groups.get(word.length) ?? []), word]);
+
+  return (
+    <>
+      <p class="muted small">
+        You found {found.length} of {all.length} words
+      </p>
+      <div class="answers">
+        {[...groups].map(([length, words]) => (
+          <section key={length}>
+            <h3>
+              <span>
+                {length} letters · {scoreTable[length]} each
+              </span>
+              <span>
+                {words.filter((word) => foundSet.has(word)).length}/{words.length}
+              </span>
+            </h3>
+            <ul class="words">
+              {words.map((word) =>
+                foundSet.has(word) ? (
+                  <li key={word} class="found">
+                    {word}
+                    <span class="visually-hidden"> (found)</span>
+                  </li>
+                ) : (
+                  <li key={word}>{word}</li>
+                ),
+              )}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -278,12 +320,13 @@ function shuffleLetters(letters: string[]): string[] {
   return newLetters;
 }
 
-// The same starting word for everyone on a given day; only the tile order varies
+// Day 0 of starters.txt; the pipeline only appends to the list, so past days keep their word
+const START_DATE = Date.UTC(2026, 9, 24);
+
+// The same starting word for everyone on a given calendar date; only the tile order varies
 function generateLetterSet(allWords: string[]): string[] {
   const date = new Date();
-  const seed = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
-  const random = seedrandom(seed);
-
-  const randomWord = allWords[Math.floor(random() * allWords.length)];
-  return shuffleLetters(shuffleLetters(randomWord.split("")));
+  const day = (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - START_DATE) / 86_400_000;
+  const word = allWords[((day % allWords.length) + allWords.length) % allWords.length];
+  return shuffleLetters(shuffleLetters(word.split("")));
 }
