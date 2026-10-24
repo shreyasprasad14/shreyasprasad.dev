@@ -1,5 +1,7 @@
 // Scales, keys and solfège naming. Pitches are MIDI note numbers (60 = middle C).
 
+export type Sound = "voice" | "piano";
+
 export type Mode = "major" | "minorDo" | "minorLa" | "chromatic";
 export type Form = "natural" | "harmonic" | "melodic";
 // How far the notes go above home: to the 3rd, to the 5th, or the full octave

@@ -1,8 +1,9 @@
 # shreyasprasad.dev
 
 Personal site and home for small browser-only apps. Astro 7 in fully static mode, plain CSS, and
-Vite-built apps, served by Cloudflare Workers Static Assets. No server, no database. A few-line Worker
-serves each app at its own subdomain (`anagrams.shreyasprasad.dev`).
+Vite-built apps, served by Cloudflare Workers Static Assets. A small Worker serves each app at its own
+subdomain (`anagrams.shreyasprasad.dev`). The only server-side state is Solfa Echo Live's classroom
+rooms, one Durable Object each, deleted when the game ends.
 
 ## Development
 
@@ -25,7 +26,8 @@ src/content/notes/      one Markdown post per note (draft: true renders in dev o
 src/content/apps/       one metadata file per app; drives /apps and the homepage teaser
 src/pages/              routes: /, /projects/[slug], /notes, /notes/[slug], /apps, /rss.xml, 404
 apps/<slug>/            standalone Vite apps, each built to /apps/<slug>/ and served at <slug>.shreyasprasad.dev
-worker/index.ts         maps <slug>.shreyasprasad.dev to /apps/<slug>/ and redirects old /apps/<slug>/ URLs there
+worker/index.ts         maps <slug>.shreyasprasad.dev to /apps/<slug>/, redirects old /apps/<slug>/ URLs there,
+                        and routes an app's /api/* to its server code in apps/<slug>/worker/
 public/                 copied as-is: _headers, _redirects, diagrams, favicon, og.png
 scripts/                build-apps.mjs and check-links.mjs, run by `pnpm build`
 ```
@@ -57,6 +59,27 @@ back on a ladder or piano. The rules live in a pure state machine (`src/games/sa
 the music model, audio and input surfaces in `src/core/` and `src/ui/`, so later games can share them.
 `pnpm --filter solfa-echo test` runs its unit tests. The samples in `public/samples/` are one mp3 per
 note from the midi-js-soundfonts project; `public/samples/CREDITS.md` has their sources and licenses.
+
+**Live** (`#/host`, `#/join/<code>`) is the classroom version: the teacher's screen hosts a room with a
+join code, students join from their own devices with nicknames, and everyone answers the same pattern
+with three lives each and a live leaderboard. The pieces:
+
+```
+apps/solfa-echo/src/shared/   rules, protocol and nickname checks, imported by both the app and the Worker
+apps/solfa-echo/src/live/     the board (host/) and student (player/) screens, and the WebSocket client
+apps/solfa-echo/worker/       the API (POST /api/rooms, GET /api/rooms/:code/ws) and the Room Durable Object;
+                              room-core.ts holds the game rules, room.ts the sockets, storage and alarms
+```
+
+The Room uses the WebSocket hibernation API and alarms (no timers), so it sleeps unbilled between
+messages and a classroom game stays inside the Workers Free plan. Rooms are deleted when the teacher
+closes them or after two idle hours. To develop Live, run the Worker and the app side by side:
+
+```sh
+pnpm exec wrangler dev              # repo root: the Worker and Durable Object on :8787 (serves the last build)
+pnpm --filter solfa-echo dev        # the app; Vite proxies /api, including WebSockets, to :8787
+node apps/solfa-echo/scripts/live-load.mjs http://localhost:8787/apps/solfa-echo/ 40 3   # 40 bot students
+```
 
 ## Deployment
 

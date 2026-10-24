@@ -8,7 +8,7 @@ interface Option<T> {
   label: string;
 }
 
-function Choice<T extends string | number | boolean>({
+export function Choice<T extends string | number | boolean>({
   legend,
   name,
   value,
@@ -46,12 +46,20 @@ function Choice<T extends string | number | boolean>({
 
 type Scale = "major" | "minor" | "chromatic";
 
-export default function SetupPanel({
+const SOLO_MODE_HINTS = {
+  game: "By ear only. Your best score is saved.",
+  practice: "Keys light up as they play. Scores aren't saved.",
+};
+
+// Generic so Live can pass its larger settings object through unchanged
+export default function SetupPanel<S extends SaysSettings>({
   settings,
   onChange,
+  modeHints = SOLO_MODE_HINTS,
 }: {
-  settings: SaysSettings;
-  onChange: (settings: SaysSettings) => void;
+  settings: S;
+  onChange: (settings: S) => void;
+  modeHints?: {game: string; practice: string};
 }) {
   const set = (patch: Partial<SaysSettings>) => onChange({...settings, ...patch});
   const {mode} = settings;
@@ -153,7 +161,7 @@ export default function SetupPanel({
           {value: true, label: "Practice"},
         ]}
         onChange={(next) => set({lights: next})}
-        hint={settings.lights ? "Keys light up as they play. Scores aren't saved." : "By ear only. Your best score is saved."}
+        hint={settings.lights ? modeHints.practice : modeHints.game}
       />
 
       <Choice

@@ -9,7 +9,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "preact": "^11.0.2"
+    "preact": "^11.0.2",
+    "qrcode-generator": "^2.0.4"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",

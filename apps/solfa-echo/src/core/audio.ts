@@ -1,7 +1,9 @@
 // Sampled notes on the Web Audio API: one small mp3 per pitch, fetched only when a game needs it.
 // Output chain: per-note envelope → master gain → compressor → speakers.
 
-export type Sound = "voice" | "piano";
+import type {Sound} from "./music";
+
+export type {Sound};
 
 // public/samples/<sound>/<midi>.mp3 exist for E2 (40) to A5 (81)
 const SAMPLE_LOW = 40;
@@ -30,6 +32,9 @@ export function unlock(): AudioContext {
 }
 
 export const now = () => ctx?.currentTime ?? 0;
+
+// False until a user gesture has started audio (Live's board needs one after a refresh)
+export const running = () => ctx?.state === "running";
 
 const sampleFor = (midi: number) => Math.min(SAMPLE_HIGH, Math.max(SAMPLE_LOW, midi));
 const cacheKey = (sound: Sound, sample: number) => `${sound}/${sample}`;

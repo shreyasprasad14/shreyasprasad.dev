@@ -1,37 +1,10 @@
 // The rules as a pure state machine: step(state, event, rng) returns the next state and the effects
 // (sounds, lights, timers) for the screen to carry out. No DOM, audio or clock in here.
-import {samePitchClass, type Key} from "../../core/music";
+import type {Key} from "../../core/music";
+import {countInMs, isCorrect, nextNote, playbackMs, TIMING, type Rng} from "../../shared/says-core";
 
-export const TIMING = {
-  // Seconds of headroom when scheduling audio, so the first note isn't clipped
-  lead: 0.1,
-  // Key-setting intro, in seconds from its start: four arpeggio notes, then a chord
-  introNote: 0.38,
-  introStep: 0.42,
-  chordAt: 1.68,
-  chordLength: 1,
-  introMs: 3000,
-  // Silent "3 · 2 · 1 · go" before the first playback
-  countStepMs: 800,
-  countSteps: 4,
-  // Pattern playback, in seconds
-  note: 0.65,
-  gap: 0.14,
-  // Time allowed for each note, restarted by every correct tap
-  answerMs: 5000,
-  tapNote: 0.3,
-  tapVolume: 0.7,
-  flashMs: 140,
-  successMs: 1300,
-  failMs: 500,
-  celebrateMs: 3000,
-};
-
-export const countInMs = () => TIMING.countStepMs * TIMING.countSteps;
-
-// From scheduling the pattern to the player's turn
-export const playbackMs = (length: number) =>
-  Math.round((TIMING.lead + length * TIMING.note + (length - 1) * TIMING.gap) * 1000) + 150;
+// The shared rules, re-exported so the solo game has one import
+export {countInMs, isCorrect, nextNote, playbackMs, TIMING, type Rng} from "../../shared/says-core";
 
 export type Phase =
   | "idle"
@@ -87,26 +60,9 @@ export type Effect =
   | {type: "celebrate"}
   | {type: "cancelAll"};
 
-export type Rng = () => number;
-
 export const initialState: SaysState = {phase: "idle", config: null, pattern: [], taps: []};
 
 export const score = (state: SaysState) => Math.max(0, state.pattern.length - 1);
-
-export function isCorrect(keys: Key[], expected: number, tapped: number): boolean {
-  return tapped === expected || samePitchClass(keys[expected].midi, keys[tapped].midi);
-}
-
-// One more random key, rerolled (up to 30 times) so no note sounds three times in a row
-export function nextNote(keys: Key[], pattern: number[], rng: Rng): number {
-  const pick = () => Math.floor(rng() * keys.length);
-  const [a, b] = pattern.slice(-2);
-  const repeats = (i: number) =>
-    pattern.length >= 2 && samePitchClass(keys[a].midi, keys[b].midi) && samePitchClass(keys[b].midi, keys[i].midi);
-  let note = pick();
-  for (let tries = 0; tries < 30 && repeats(note); tries++) note = pick();
-  return note;
-}
 
 const play = (state: SaysState): Effect[] => [
   {type: "playPattern", pattern: state.pattern, lights: state.config!.practice},

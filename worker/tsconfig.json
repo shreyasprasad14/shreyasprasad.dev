@@ -1,0 +1,17 @@
+{
+  // The Worker runs on workerd, not in a browser, so it's checked against the Workers runtime types.
+  // It pulls in the apps' server code (apps/<slug>/worker/) and the shared modules those import.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023"],
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true
+  },
+  "include": ["./**/*.ts", "../apps/*/worker/**/*.ts"],
+  "exclude": ["../apps/*/worker/**/*.test.ts"]
+}

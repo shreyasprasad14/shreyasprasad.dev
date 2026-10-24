@@ -1,19 +1,8 @@
-import type {Sound} from "../../core/audio";
-import type {Form, Mode, Range} from "../../core/music";
+import type {Form, Mode, Sound} from "../../core/music";
 import {isRecord, read, write} from "../../core/storage";
+import type {SaysSettings} from "../../shared/says-core";
 
-export interface SaysSettings {
-  mode: Mode;
-  form: Form;
-  range: Range;
-  // Pitch class of Do, 0 = C
-  keyPc: number | "random";
-  sound: Sound;
-  // Practice mode: keys light up during playback and scores aren't saved
-  lights: boolean;
-  // The pattern always starts on home
-  startHome: boolean;
-}
+export type {SaysSettings};
 
 export const DEFAULT_SETTINGS: SaysSettings = {
   mode: "major",

@@ -224,6 +224,10 @@ export default function SaysScreen() {
           <p class="muted">
             Listen to a run of notes, then sing it back with your fingers. Every round adds one more note.
           </p>
+          <p class="live-links">
+            <a href="#/join">Join a class</a>
+            <a href="#/host">Host a class game</a>
+          </p>
         </div>
 
         {state.phase === "gameOver" && game && <Result state={state} game={game} />}
