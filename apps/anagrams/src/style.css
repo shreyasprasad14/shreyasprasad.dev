@@ -115,6 +115,10 @@ a:hover {
   align-items: center;
   gap: 28px;
   padding-top: 40px;
+  /* Fast taps on the tiles shouldn't double-tap zoom or select text on mobile */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 h1 {
