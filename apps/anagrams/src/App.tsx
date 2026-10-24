@@ -30,6 +30,7 @@ export default function App() {
   const [countdown, setCountdown] = useState(ROUND_SECONDS);
   const [toast, setToast] = useState<Toast | null>(null);
   const toastId = useRef(0);
+  const gameRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     Promise.all([loadWords("dictionary.txt"), loadWords("common.txt"), loadWords("starters.txt")])
@@ -51,6 +52,23 @@ export default function App() {
     const timeout = setTimeout(() => setCountdown(countdown - 1), 1000);
     return () => clearTimeout(timeout);
   }, [gameState, countdown]);
+
+  // iOS still double-tap zooms on fast taps despite touch-action, so cancel the second tap of a
+  // double-tap and click the button ourselves, since cancelling it also drops the click
+  useEffect(() => {
+    const game = gameRef.current;
+    if (!game) return;
+    let lastTouchEnd = 0;
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (e.timeStamp - lastTouchEnd < 350) {
+        e.preventDefault();
+        (e.target as Element).closest("button")?.click();
+      }
+      lastTouchEnd = e.timeStamp;
+    };
+    game.addEventListener("touchend", handleTouchEnd, {passive: false});
+    return () => game.removeEventListener("touchend", handleTouchEnd);
+  }, []);
 
   useEffect(() => {
     if (!toast) return;
@@ -135,7 +153,7 @@ export default function App() {
         </div>
       </header>
 
-      <main class="game">
+      <main class="game" ref={gameRef}>
         <h1>Anagrams</h1>
 
         {gameState === GameState.LOADING && (
