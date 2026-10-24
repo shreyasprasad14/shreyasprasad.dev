@@ -124,9 +124,9 @@ export default function App() {
         if (document.activeElement instanceof HTMLButtonElement) return;
         handleWordSubmit();
       } else if (/^[a-z]$/.test(key) && gameLetters.includes(key)) {
-        // Prefer an unused tile with this letter, so the right one greys out
+        // Use an unused tile with this letter, so the right one greys out; like tapping, a used tile can't be reused
         const unused = gameLetters.findIndex((l, i) => l === key && !userIndices.includes(i));
-        addLetter(key, unused === -1 ? gameLetters.indexOf(key) : unused);
+        if (unused !== -1) addLetter(key, unused);
       }
     }
 
@@ -321,10 +321,13 @@ async function loadWords(file: string): Promise<string[]> {
   return (await response.text()).split("\n").filter(Boolean);
 }
 
-// Letters may repeat: every letter of the word only has to appear among the tiles
+// Each tile can be used once, so the word can't use a letter more often than the tiles have it
 function isPseudoAnagram(str: string, letters: string[]): boolean {
+  const remaining = letters.slice();
   for (const char of str) {
-    if (!letters.includes(char)) return false;
+    const index = remaining.indexOf(char);
+    if (index === -1) return false;
+    remaining.splice(index, 1);
   }
   return true;
 }
