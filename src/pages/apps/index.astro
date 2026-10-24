@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import {getNewest} from "../../lib/content";
+import {appUrl} from "../../lib/site";
 
 const apps = await getNewest("apps");
 ---
@@ -14,7 +15,7 @@ const apps = await getNewest("apps");
         apps.map((app) => (
           <li class="card">
             <h2>
-              <a href={`/apps/${app.id}/`}>{app.data.title}</a>
+              <a href={appUrl(app.id)}>{app.data.title}</a>
             </h2>
             <p class="muted">{app.data.description}</p>
             <ul class="tags" aria-label="Tags">

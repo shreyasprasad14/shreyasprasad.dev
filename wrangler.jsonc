@@ -3,10 +3,16 @@
   // Kept from the previous site so the shreyasprasad.dev custom domain stays attached
   "name": "shreyasprasad-dev",
   "compatibility_date": "2026-10-23",
-  // Static assets only: the site and every app are prebuilt into ./dist
+  // Only routes <slug>.shreyasprasad.dev to dist/apps/<slug>/; the site and apps are prebuilt into ./dist.
+  // The *.shreyasprasad.dev/* route is attached in the dashboard, not listed here: with a route in this
+  // file, `wrangler dev` rewrites every request's hostname to shreyasprasad.dev and subdomains can't be tested.
+  "main": "./worker/index.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // The Worker needs every request's hostname, including requests that match a file
+    "run_worker_first": true
   }
 }

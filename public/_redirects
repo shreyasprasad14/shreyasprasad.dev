@@ -2,6 +2,6 @@
 /resume     /resume.pdf       302
 
 # Paths from the previous version of the site
-/anagrams   /apps/anagrams/   301
+/anagrams   https://anagrams.shreyasprasad.dev/   301
 /about      /                 301
 /projects   /                 301

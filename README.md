@@ -1,7 +1,8 @@
 # shreyasprasad.dev
 
 Personal site and home for small browser-only apps. Astro 7 in fully static mode, plain CSS, and
-Vite-built apps, served by Cloudflare Workers Static Assets. No server, no database.
+Vite-built apps, served by Cloudflare Workers Static Assets. No server, no database. A few-line Worker
+serves each app at its own subdomain (`anagrams.shreyasprasad.dev`).
 
 ## Development
 
@@ -14,6 +15,8 @@ pnpm build      # astro check, astro build, build apps into dist/apps/, check in
 pnpm preview    # build, then serve dist/ with Wrangler exactly as Cloudflare will
 ```
 
+Under `pnpm preview`, apps are at `http://<slug>.localhost:8787/` as well as `/apps/<slug>/`.
+
 ## Layout
 
 ```
@@ -21,17 +24,22 @@ src/content/projects/   one Markdown write-up per project
 src/content/notes/      one Markdown post per note (draft: true renders in dev only)
 src/content/apps/       one metadata file per app; drives /apps and the homepage teaser
 src/pages/              routes: /, /projects/[slug], /notes, /notes/[slug], /apps, /rss.xml, 404
-apps/<slug>/            standalone Vite apps, each built to /apps/<slug>/
+apps/<slug>/            standalone Vite apps, each built to /apps/<slug>/ and served at <slug>.shreyasprasad.dev
+worker/index.ts         maps <slug>.shreyasprasad.dev to /apps/<slug>/ and redirects old /apps/<slug>/ URLs there
 public/                 copied as-is: _headers, _redirects, diagrams, favicon, og.png
 scripts/                build-apps.mjs and check-links.mjs, run by `pnpm build`
 ```
 
 ## Adding an app
 
-1. Scaffold `apps/<slug>/` (`pnpm create vite apps/<slug>`) and set `base: '/apps/<slug>/'` in its
-   `vite.config.ts`. Use hash routing or none: the site keeps its own 404 page, so there's no SPA fallback.
+1. Scaffold `apps/<slug>/` (`pnpm create vite apps/<slug>`) and set `base: './'` in its `vite.config.ts`,
+   so it works at the subdomain root and under `/apps/<slug>/` on preview URLs. Use hash routing or none:
+   there's no SPA fallback. Link back to the site with absolute `https://shreyasprasad.dev/...` URLs,
+   since root paths like `/apps/` resolve against the app's own subdomain.
 2. Add `src/content/apps/<slug>.md` with `title`, `description`, `date`, `tags` and `tier: 2`.
 3. Develop with `pnpm --filter <slug> dev`. `pnpm build` builds it and fails if the metadata file is missing.
+
+No DNS or Cloudflare change is needed: the wildcard route picks up the new subdomain on the next deploy.
 
 A single-file experiment can instead go in `public/apps/<slug>/index.html` with `tier: 3`.
 Per-app response headers (CSP, COOP/COEP for `SharedArrayBuffer`) go in `public/_headers`.
@@ -48,3 +56,14 @@ Cloudflare Workers Builds deploys from the Git repo: pushes to `main` go to prod
 branches get preview URLs. Build command `pnpm build`, deploy command `npx wrangler deploy`. Node comes
 from `.nvmrc` and pnpm from `packageManager` in `package.json`. The Worker name in `wrangler.jsonc`
 matches the one the custom domain is attached to.
+
+App subdomains need two one-time settings in the Cloudflare dashboard, kept out of `wrangler.jsonc`
+because a route there makes `wrangler dev` rewrite every hostname to `shreyasprasad.dev`:
+
+- DNS: a proxied wildcard record, `AAAA` `*` → `100::`. Cloudflare's free certificate covers one level
+  of subdomain, so `<slug>.shreyasprasad.dev` works over HTTPS and `a.b.shreyasprasad.dev` doesn't.
+- Worker route: Workers & Pages → `shreyasprasad-dev` → Settings → Domains & Routes → Add route,
+  `*.shreyasprasad.dev/*`. `wrangler deploy` leaves dashboard routes alone while the config lists none.
+
+Every request now runs the Worker (`run_worker_first`), so it counts toward the Workers request quota
+(100,000 a day on the free plan) instead of being a free static-asset request.

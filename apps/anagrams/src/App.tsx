@@ -120,8 +120,8 @@ export default function App() {
   return (
     <div class="page">
       <header class="topbar">
-        <a href="/apps/">← Apps</a>
-        <a href="/">shreyasprasad.dev</a>
+        <a href="https://shreyasprasad.dev/apps/">← Apps</a>
+        <a href="https://shreyasprasad.dev/">shreyasprasad.dev</a>
       </header>
 
       <main class="game">

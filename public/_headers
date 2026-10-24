@@ -8,10 +8,10 @@
 # Hashed build output never changes, so cache it for a year
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
-/apps/*/assets/*
+/apps/:app/assets/*
   Cache-Control: public, max-age=31536000, immutable
 
 # Apps add their own headers here, e.g. cross-origin isolation for SharedArrayBuffer:
-# /apps/<slug>/*
+# /apps/<slug>/*   (also covers <slug>.shreyasprasad.dev, which the Worker serves from here)
 #   Cross-Origin-Opener-Policy: same-origin
 #   Cross-Origin-Embedder-Policy: require-corp

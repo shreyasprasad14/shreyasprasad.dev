@@ -3,7 +3,7 @@ import Base from "../layouts/Base.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import EntryList from "../components/EntryList.astro";
 import {formatDate, getNewest, getProjects} from "../lib/content";
-import {resumeHref, site} from "../lib/site";
+import {appUrl, resumeHref, site} from "../lib/site";
 
 const projects = await getProjects();
 const apps = await getNewest("apps", 3);
@@ -80,7 +80,7 @@ const links = [
         <h2 class="section-label"><a href="/apps/">Apps</a></h2>
         <EntryList
           entries={apps.map((app) => ({
-            href: `/apps/${app.id}/`,
+            href: appUrl(app.id),
             title: app.data.title,
             meta: app.data.tags[0] ?? "",
             description: app.data.description,

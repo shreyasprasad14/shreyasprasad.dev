@@ -8,6 +8,9 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/shreyprasad/",
 };
 
+// Each app is served at its own subdomain by worker/index.ts
+export const appUrl = (slug: string) => `https://${slug}.shreyasprasad.dev/`;
+
 // Link the self-hosted PDF once public/resume.pdf exists; until then, the copy the old site linked to.
 export const resumeHref = existsSync("public/resume.pdf")
   ? "/resume.pdf"
