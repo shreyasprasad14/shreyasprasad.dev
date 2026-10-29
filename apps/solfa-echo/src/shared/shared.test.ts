@@ -51,14 +51,28 @@ describe("cleanName", () => {
   it("compares names case-insensitively", () => {
     expect(nameKey("Bob")).toBe(nameKey("bob"));
   });
+
+  it("drops joiners outside emoji so a name can't pose as a taken one", () => {
+    expect(cleanName("A\u200Dda")).toEqual({ok: true, name: "Ada"});
+    expect(cleanName("Ada 👩\u200D🎤")).toEqual({ok: true, name: "Ada 👩\u200D🎤"});
+    expect(nameKey("A\u200Dda")).toBe(nameKey("Ada"));
+  });
 });
 
 describe("isBlocked", () => {
-  it.each(["fuck", "FUUUCK", "f u c k", "f.u.c.k", "$h!t", "sh1t head", "big ass", "B1tch"])("blocks %s", (name) => {
+  it.each([
+    "fuck", "FUUUCK", "f u c k", "f.u.c.k", "$h!t", "sh1t head", "big ass", "B1tch",
+    "BigAss", "f*ck", "f**k", "sh*t", "fu ck", "FuCk", "a ss",
+    "bigass", "Dumbass", "jackass", "asshat", "nword", "NWord", "n word", "n-word", "N.W.O.R.D", "nwordlover",
+  ])("blocks %s", (name) => {
     expect(isBlocked(name)).toBe(true);
   });
 
-  it.each(["Cassie", "Essex", "Hancock", "Titus", "Dickens", "Grape", "Nazim", "Skillet", "Bob", "Mississippi", "Analise"])(
+  it.each([
+    "Cassie", "Essex", "Hancock", "Titus", "Dickens", "Grape", "Nazim", "Skillet", "Bob", "Mississippi", "Analise",
+    "DeAnna", "McDonald", "Li Na", "Jo Ann", "*Star*",
+    "Hassan", "Massimo", "Douglass", "A Hassan", "S Lutsky", "Ben Word", "Wordsworth",
+  ])(
     "allows %s",
     (name) => {
       expect(isBlocked(name)).toBe(false);

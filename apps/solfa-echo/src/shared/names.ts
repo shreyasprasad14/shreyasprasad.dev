@@ -19,7 +19,7 @@ export function cleanName(raw: string): NameCheck {
   let name = raw
     .normalize("NFKC")
     // Control, format (except the joiner inside emoji), private-use and unassigned characters
-    .replace(/[\p{Cc}\p{Co}\p{Cn}]|(?!‍)\p{Cf}/gu, "")
+    .replace(/[\p{Cc}\p{Co}\p{Cn}]|(?!\u200D)\p{Cf}/gu, "")
     // At most two combining marks in a row, which is enough for real names and stops "zalgo" text
     .replace(/(\p{M}{2})\p{M}+/gu, "$1")
     .replace(/\s+/gu, " ")
@@ -28,6 +28,8 @@ export function cleanName(raw: string): NameCheck {
   let emoji = 0;
   name = graphemes(name)
     .filter((g) => !EMOJI.test(g) || ++emoji <= MAX_EMOJI)
+    // The joiner only belongs inside an emoji; next to letters it is invisible ("A\u200Dda" would pass for "Ada")
+    .map((g) => (EMOJI.test(g) ? g : g.replace(/\u200D/gu, "")))
     .join("")
     .trim();
 
@@ -37,14 +39,17 @@ export function cleanName(raw: string): NameCheck {
   return {ok: true, name};
 }
 
-// Names compare case-insensitively, so "Bob" and "bob" can't both join
-export const nameKey = (name: string) => name.normalize("NFKC").toLocaleLowerCase("en");
+// Names compare case-insensitively and without joiners, so "Bob", "bob" and "B\u200Dob" can't all join
+export const nameKey = (name: string) => name.normalize("NFKC").replace(/\u200D/gu, "").toLocaleLowerCase("en");
 
-// Matched anywhere in a word, or across letters spaced out ("f u c k"); letters may repeat ("fuuuck")
+// Matched anywhere in a word, or across pieces spaced out ("f u c k", "fu ck"); letters may repeat ("fuuuck")
+// and any but the first may be starred out ("f*ck")
 const BLOCKED_ANYWHERE = [
   "fuck", "shit", "bitch", "cunt", "pussy", "penis", "vagina", "whore", "slut", "bastard", "asshole",
   "twat", "porn", "dildo", "boob", "tits", "hitler", "nigger", "nigga", "faggot", "retard", "suicide",
-  "sexy", "nude", "naked", "milf", "jizz",
+  "sexy", "nude", "naked", "milf", "jizz", "nword",
+  // "ass" itself is only blocked as a whole word, so the common compounds are listed here
+  "bigass", "fatass", "dumbass", "jackass", "smartass", "badass", "asshat",
 ];
 
 // Only a whole word: inside a longer word these are innocent ("Cassie", "Essex", "Hancock", "Grape", "Nazim")
@@ -58,32 +63,40 @@ const LOOKALIKES: Record<string, string> = {
   "1": "i", "!": "i", "|": "i", "0": "o", "$": "s", "5": "s", "7": "t", "+": "t", "2": "z",
 };
 
-// Lowercase, accents off, look-alike symbols mapped to letters, everything else dropped
+// Lowercase, accents off, look-alike symbols mapped to letters, "*" kept as a masked letter, everything else dropped
 const fold = (word: string) =>
   [...word.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()]
     .map((c) => LOOKALIKES[c] ?? c)
-    .filter((c) => c >= "a" && c <= "z")
+    .filter((c) => (c >= "a" && c <= "z") || c === "*")
     .join("");
 
-// "fuck" → /f+u+c+k+/, so stretched spellings still match
-const stretchy = (term: string) => new RegExp([...term].map((c) => `${c}+`).join(""));
-const ANYWHERE = BLOCKED_ANYWHERE.map(stretchy);
-const WORDS = BLOCKED_WORDS.map((term) => new RegExp(`^${[...term].map((c) => `${c}+`).join("")}$`));
+// "fuck" → /f+[u*]+[c*]+[k*]+/, so stretched and starred spellings still match
+const stretchy = (term: string) => [...term].map((c, i) => (i === 0 ? `${c}+` : `[${c}*]+`)).join("");
+const ANYWHERE = BLOCKED_ANYWHERE.map((term) => new RegExp(stretchy(term)));
+// Every term, matched as a whole word
+const WHOLE = [...BLOCKED_ANYWHERE, ...BLOCKED_WORDS].map((term) => new RegExp(`^${stretchy(term)}$`));
 
 export function isBlocked(name: string): boolean {
-  const words = name.split(/[\s._\-,;:/\\]+/).map(fold).filter(Boolean);
-  // Runs of single letters ("f u c k") are read as one word too
-  const candidates = [...words];
-  let run = "";
-  for (const word of [...words, ""]) {
-    if (word.length === 1) {
-      run += word;
+  const tokens = name.split(/[\s._\-,;:/\\]+/);
+  // Capitals start a new piece too, so "BigAss" is also read as "Big" and "Ass"
+  const pieces = tokens.flatMap((token) => token.split(/(?<=\p{Ll})(?=\p{Lu})/u)).map(fold).filter(Boolean);
+  const candidates = [...tokens.map(fold), ...pieces];
+  // Runs of one- or two-letter pieces ("f u c k", "fu ck") are read as one word too
+  let run: string[] = [];
+  for (const piece of [...pieces, ""]) {
+    if (piece.length > 0 && piece.length <= 2) {
+      run.push(piece);
     } else {
-      if (run.length > 1) candidates.push(run);
-      run = "";
+      if (run.length > 1) candidates.push(run.join(""));
+      run = [];
     }
   }
-  return candidates.some(
-    (word) => ANYWHERE.some((pattern) => pattern.test(word)) || WORDS.some((pattern) => pattern.test(word)),
+  // A lone letter is read with the next piece ("n word"), but only as a whole term, so an initial before a
+  // name ("S Lutsky") isn't read as one word
+  const joined = pieces.slice(1).flatMap((piece, i) => (pieces[i].length === 1 ? [pieces[i] + piece] : []));
+  const words = candidates.filter(Boolean);
+  return (
+    words.some((word) => ANYWHERE.some((pattern) => pattern.test(word))) ||
+    [...words, ...joined].some((word) => WHOLE.some((pattern) => pattern.test(word)))
   );
 }
