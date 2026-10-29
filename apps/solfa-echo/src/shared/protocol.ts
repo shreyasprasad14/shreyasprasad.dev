@@ -8,12 +8,17 @@ export interface LiveSettings extends SaysSettings {
   timePerNote: 3 | 5 | 8;
   // 0 = unlimited
   maxRounds: 0 | 10 | 15 | 20;
+  // Lives each student starts with: 1, 3, 5 or a custom count up to MAX_LIVES
+  lives: number;
   // Also play the pattern on student devices (for headphones). Sends them the notes, so off by default.
   studentAudio: boolean;
 }
 
 export const TIMES_PER_NOTE = [3, 5, 8] as const;
 export const MAX_ROUNDS = [10, 15, 20, 0] as const;
+export const LIVES_PRESETS = [1, 3, 5] as const;
+export const DEFAULT_LIVES = 3;
+export const MAX_LIVES = 10;
 
 export const DEFAULT_LIVE_SETTINGS: LiveSettings = {
   mode: "major",
@@ -25,10 +30,10 @@ export const DEFAULT_LIVE_SETTINGS: LiveSettings = {
   startHome: true,
   timePerNote: 5,
   maxRounds: 15,
+  lives: DEFAULT_LIVES,
   studentAudio: false,
 };
 
-export const LIVES = 3;
 export const MAX_PLAYERS = 60;
 export const MAX_MESSAGE_BYTES = 1024;
 
@@ -211,6 +216,7 @@ export function parseSettings(value: unknown): LiveSettings | null {
     typeof v.startHome !== "boolean" ||
     !oneOf(v.timePerNote, TIMES_PER_NOTE) ||
     !oneOf(v.maxRounds, MAX_ROUNDS) ||
+    !isInt(v.lives, 1, MAX_LIVES) ||
     typeof v.studentAudio !== "boolean"
   ) {
     return null;
@@ -226,6 +232,7 @@ export function parseSettings(value: unknown): LiveSettings | null {
     startHome: v.startHome,
     timePerNote: v.timePerNote,
     maxRounds: v.maxRounds,
+    lives: v.lives,
     studentAudio: v.studentAudio,
   };
 }

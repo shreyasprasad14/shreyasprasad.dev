@@ -67,14 +67,24 @@ export function RoundBoard({view, serverNow, marks}: {view: RoomView; serverNow:
               />
             </div>
           )}
-          <Tiles players={players} len={round.len} progress={view.progress} />
+          <Tiles players={players} len={round.len} progress={view.progress} maxLives={view.settings.lives} />
         </div>
       </div>
     </main>
   );
 }
 
-function Tiles({players, len, progress}: {players: RosterEntry[]; len: number; progress: Record<string, Progress>}) {
+function Tiles({
+  players,
+  len,
+  progress,
+  maxLives,
+}: {
+  players: RosterEntry[];
+  len: number;
+  progress: Record<string, Progress>;
+  maxLives: number;
+}) {
   return (
     <ul class="tiles">
       {players.map((p) => {
@@ -83,7 +93,7 @@ function Tiles({players, len, progress}: {players: RosterEntry[]; len: number; p
         return (
           <li key={p.id} class={`tile ${result ?? ""} ${p.connected ? "" : "offline"}`}>
             <span class="tile-name">{p.name || "…"}</span>
-            <Hearts lives={p.lives} />
+            <Hearts lives={p.lives} max={maxLives} />
             <span class="tile-progress">
               {result === "ok" ? (
                 "✓"
@@ -133,7 +143,7 @@ export function Reveal({view, onNext}: {view: RoomView; onNext: () => void}) {
         {results.map((r) => (
           <li key={r.id} class={`tile ${r.result} ${reveal.out.includes(r.id) ? "out" : ""}`}>
             <span class="tile-name">{byId.get(r.id)?.name || "…"}</span>
-            <Hearts lives={r.livesLeft} />
+            <Hearts lives={r.livesLeft} max={view.settings.lives} />
             <span class="tile-progress">
               {r.result === "ok" ? `+${formatPoints(r.points)}` : reveal.out.includes(r.id) ? "Out" : RESULT_LABEL[r.result]}
             </span>

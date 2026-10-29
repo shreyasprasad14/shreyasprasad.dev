@@ -38,6 +38,8 @@ export const TIMING = {
   flashMs: 140,
   successMs: 1300,
   failMs: 500,
+  // Solo, with a life to spare: the pause before the missed pattern plays again
+  retryMs: 1600,
   celebrateMs: 3000,
 };
 

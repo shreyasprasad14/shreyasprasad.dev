@@ -1,7 +1,8 @@
+import {useState} from "preact/hooks";
 import {KEY_NAMES} from "../core/music";
 import {isRecord, read, write} from "../core/storage";
 import SetupPanel, {Choice} from "../games/says/SetupPanel";
-import {DEFAULT_LIVE_SETTINGS, parseSettings, type LiveSettings} from "../shared/protocol";
+import {DEFAULT_LIVE_SETTINGS, LIVES_PRESETS, MAX_LIVES, parseSettings, type LiveSettings} from "../shared/protocol";
 
 const PREFS_KEY = "live.prefs.v1";
 
@@ -24,12 +25,16 @@ export function describeSettings(s: LiveSettings): string {
     s.keyPc === "random" ? "random key" : `Do = ${KEY_NAMES[s.keyPc]}`,
     `${s.timePerNote} s a note`,
     s.maxRounds === 0 ? "no round limit" : `${s.maxRounds} rounds`,
+    `${s.lives} ${s.lives === 1 ? "life" : "lives"}`,
     s.lights ? "notes lit on the board" : "by ear",
   ].join(" · ");
 }
 
 export function LiveSettingsForm({settings, onChange}: {settings: LiveSettings; onChange: (s: LiveSettings) => void}) {
   const set = (patch: Partial<LiveSettings>) => onChange({...settings, ...patch});
+  const isPreset = (LIVES_PRESETS as readonly number[]).includes(settings.lives);
+  // Kept apart from the value so typing 3 into the custom box doesn't snap back to the 3 chip
+  const [custom, setCustom] = useState(!isPreset);
   return (
     <div class="setup">
       <SetupPanel
@@ -63,6 +68,32 @@ export function LiveSettingsForm({settings, onChange}: {settings: LiveSettings; 
         ]}
         onChange={(maxRounds) => set({maxRounds})}
       />
+      <Choice<number | "custom">
+        legend="Lives"
+        name="lives"
+        value={custom || !isPreset ? "custom" : settings.lives}
+        options={[...LIVES_PRESETS.map((n) => ({value: n, label: String(n)})), {value: "custom", label: "Custom"}]}
+        onChange={(next) => {
+          setCustom(next === "custom");
+          if (next !== "custom") set({lives: next});
+        }}
+      />
+      {(custom || !isPreset) && (
+        <label class="field">
+          <span class="legend">Lives per student (1–{MAX_LIVES})</span>
+          <input
+            class="input"
+            type="number"
+            min={1}
+            max={MAX_LIVES}
+            value={settings.lives}
+            onInput={(e) => {
+              const lives = e.currentTarget.valueAsNumber;
+              if (Number.isInteger(lives) && lives >= 1 && lives <= MAX_LIVES) set({lives});
+            }}
+          />
+        </label>
+      )}
       <Choice
         legend="Audio"
         name="audio"

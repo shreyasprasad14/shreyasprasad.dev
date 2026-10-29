@@ -5,7 +5,6 @@
 import {keysFor, type Key} from "../src/core/music";
 import {cleanName, nameKey} from "../src/shared/names";
 import {
-  LIVES,
   MAX_PLAYERS,
   type ErrorCode,
   type LeaderboardMsg,
@@ -111,13 +110,13 @@ export function newRoomState(code: string, hostKeyHash: string, settings: LiveSe
   };
 }
 
-const freshPlayer = (name: string, now: number, spectator: boolean): PlayerRecord => ({
+const freshPlayer = (name: string, now: number, spectator: boolean, lives: number): PlayerRecord => ({
   name,
   joinedAt: now,
   connected: true,
   spectator,
   alive: !spectator,
-  lives: spectator ? 0 : LIVES,
+  lives: spectator ? 0 : lives,
   points: 0,
   roundsSurvived: 0,
   playing: false,
@@ -212,7 +211,7 @@ export class RoomCore {
     const checked = this.checkName(rawName);
     if ("error" in checked) return checked.error;
     // Late joiners play along unscored until the next game
-    s.players[playerId] = freshPlayer(checked.name, now, s.phase !== "lobby");
+    s.players[playerId] = freshPlayer(checked.name, now, s.phase !== "lobby", s.settings.lives);
     this.changed();
     this.sendRoster();
     return null;
@@ -278,8 +277,11 @@ export class RoomCore {
     if (this.s.phase !== "lobby") return;
     this.s.settings = settings;
     if (typeof settings.keyPc === "number") this.s.keyPc = settings.keyPc;
+    // Everyone in the lobby is a player, so they all take the new number of lives
+    for (const p of Object.values(this.s.players)) p.lives = settings.lives;
     this.changed();
     this.send("all", {type: "settings", settings});
+    this.sendRoster();
   }
 
   // The game
@@ -318,7 +320,7 @@ export class RoomCore {
     s.phase = "lobby";
     s.round = 0;
     s.pattern = [];
-    for (const [id, p] of Object.entries(s.players)) s.players[id] = {...freshPlayer(p.name, p.joinedAt, false), connected: p.connected};
+    for (const [id, p] of Object.entries(s.players)) s.players[id] = {...freshPlayer(p.name, p.joinedAt, false, s.settings.lives), connected: p.connected};
     this.changed();
     this.sendSnapshots();
   }

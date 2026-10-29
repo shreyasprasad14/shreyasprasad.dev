@@ -6,12 +6,13 @@ import Celebrate from "../../ui/Celebrate";
 import Ladder, {type Mark} from "../../ui/Ladder";
 import {useSurface, useViewportHeight} from "../../ui/layout";
 import {useNoteKeyboard} from "../../ui/NoteInput";
+import Hearts from "../../ui/Hearts";
 import Piano from "../../ui/Piano";
 import ThemeToggle from "../../ui/ThemeToggle";
 import {bestKey, loadBests, saveBest} from "./bests";
 import {initialState, isCorrect, step, TIMING, type Effect, type SaysEvent, type SaysState} from "./SaysGame";
-import {loadSettings, saveSettings, type SaysSettings} from "./settings";
-import SetupPanel, {BestsTable} from "./SetupPanel";
+import {loadSettings, saveSettings, SOLO_LIVES, type SoloSettings} from "./settings";
+import SetupPanel, {BestsTable, Choice} from "./SetupPanel";
 
 // What one game was started with, after a random key is resolved
 interface Game {
@@ -21,11 +22,13 @@ interface Game {
   keys: Key[];
   bestKey: string;
   practice: boolean;
+  lives: number;
 }
 
 const COUNT_IN = ["3", "2", "1", "Go"];
 
 const notes = (n: number) => `${n} ${n === 1 ? "note" : "notes"}`;
+const livesLeft = (n: number) => `${n} ${n === 1 ? "life" : "lives"} left`;
 
 export default function SaysScreen() {
   const [settings, setSettings] = useState(loadSettings);
@@ -153,7 +156,7 @@ export default function SaysScreen() {
   async function start() {
     // Inside the tap, before any await: browsers only start audio from a user gesture
     unlock();
-    const {mode, form, range, sound, lights, startHome} = settings;
+    const {mode, form, range, sound, lights, startHome, lives} = settings;
     const keyPc = settings.keyPc === "random" ? Math.floor(Math.random() * 12) : settings.keyPc;
     const keys = keysFor(mode, range, form, keyPc);
     const {arpeggio, chord} = introPitches(mode, keyPc);
@@ -169,13 +172,13 @@ export default function SaysScreen() {
       setLoading(false);
     }
 
-    const g: Game = {mode, keyPc, sound, keys, bestKey: bestKey(mode, form, range), practice: lights};
+    const g: Game = {mode, keyPc, sound, keys, bestKey: bestKey(mode, form, range, lives), practice: lights, lives};
     gameRef.current = g;
     setGame(g);
-    dispatch({type: "start", config: {keys, startHome, practice: lights, prevBest: loadBests()[g.bestKey] ?? 0}});
+    dispatch({type: "start", config: {keys, startHome, practice: lights, lives, prevBest: loadBests()[g.bestKey] ?? 0}});
   }
 
-  const changeSettings = (next: SaysSettings) => {
+  const changeSettings = (next: SoloSettings) => {
     setSettings(next);
     saveSettings(next);
   };
@@ -232,7 +235,21 @@ export default function SaysScreen() {
 
         {state.phase === "gameOver" && game && <Result state={state} game={game} />}
 
-        <SetupPanel settings={settings} onChange={changeSettings} />
+        <div class="setup">
+          <SetupPanel settings={settings} onChange={changeSettings} />
+          <Choice
+            legend="Lives"
+            name="lives"
+            value={settings.lives}
+            options={SOLO_LIVES.map((n) => ({value: n, label: String(n)}))}
+            onChange={(lives) => changeSettings({...settings, lives})}
+            hint={
+              settings.lives === 1
+                ? "One miss ends the game."
+                : "A miss costs a life and plays the same pattern again. Each number of lives keeps its own best scores."
+            }
+          />
+        </div>
 
         <div class="start">
           <button type="button" class="button" onClick={start} disabled={loading}>
@@ -245,15 +262,15 @@ export default function SaysScreen() {
           )}
         </div>
 
-        <BestsTable bests={bests} />
+        <BestsTable bests={bests} lives={settings.lives} />
 
         <details class="help">
           <summary>How to play</summary>
           <p>
             First you'll hear the key: an arpeggio and chord ending on home ({settings.mode === "minorLa" ? "La" : "Do"}).
             Then the pattern plays. Tap the notes back in order; any octave counts. You have five seconds for each
-            note. One wrong note or running out of time ends the game, and your score is the longest pattern you
-            got right.
+            note. A wrong note or running out of time costs a life, and while you have lives left the same pattern
+            plays again. Losing your last life ends the game, and your score is the longest pattern you got right.
           </p>
           <p>
             On a keyboard, press D R M F S L T for the syllables or 1–8 for scale degrees. Press + or − first to
@@ -324,13 +341,14 @@ function Round({
 }) {
   const {keys} = game;
   const length = state.pattern.length;
+  const missed = state.reason === "timeout" ? "Time's up" : "Not quite";
   const status: Record<string, string> = {
     intro: `This is ${keys[0].syl}`,
     countIn: "Get ready",
     playback: "Listen…",
     awaitingInput: "Your turn",
     roundSuccess: `✓ ${notes(length)}`,
-    failing: "Not quite",
+    failing: state.lives > 0 ? `${missed} · ${livesLeft(state.lives)}` : missed,
   };
   const active = state.phase === "awaitingInput";
   const Surface = surface === "piano" ? Piano : Ladder;
@@ -343,6 +361,12 @@ function Round({
         </button>
         <span class="round-label">
           Round {length} · {notes(length)} · Do = {KEY_NAMES[game.keyPc]}
+          {game.lives > 1 && (
+            <>
+              {" · "}
+              <Hearts lives={state.lives} max={game.lives} />
+            </>
+          )}
         </span>
         {canToggle ? (
           <button type="button" class="link-button" onClick={onToggle}>

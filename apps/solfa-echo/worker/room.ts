@@ -6,7 +6,7 @@
 // - timers are alarms, never setTimeout;
 // - pings are answered by the runtime without waking the object.
 import {DurableObject} from "cloudflare:workers";
-import {MAX_MESSAGE_BYTES, parseClientMsg, type ClientMsg, type ErrorCode, type LiveSettings, type ServerMsg} from "../src/shared/protocol";
+import {DEFAULT_LIVES, MAX_MESSAGE_BYTES, parseClientMsg, type ClientMsg, type ErrorCode, type LiveSettings, type ServerMsg} from "../src/shared/protocol";
 import {hashKey, makeHostKey} from "./codes";
 import {newRoomState, RoomCore, type Outgoing, type RoomState} from "./room-core";
 
@@ -37,6 +37,8 @@ export class Room extends DurableObject {
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair("ping", "pong"));
     void ctx.blockConcurrencyWhile(async () => {
       this.state = (await ctx.storage.get<RoomState>("state")) ?? null;
+      // Rooms saved before lives were a setting had three
+      if (this.state) this.state.settings.lives ??= DEFAULT_LIVES;
     });
   }
 

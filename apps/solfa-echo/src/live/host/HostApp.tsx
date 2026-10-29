@@ -91,8 +91,8 @@ function HostSetup({onCreated}: {onCreated: (session: HostSession) => void}) {
           <h1>Host a class game</h1>
           <p class="muted">
             Put this screen on the projector. Students join from their own devices with a code, then everyone hears
-            the same pattern from the board and taps it back at once. Each student has three lives, and you choose
-            when to start each round.
+            the same pattern from the board and taps it back at once. Each student has a set number of lives, and you
+            choose when to start each round.
           </p>
         </div>
         <LiveSettingsForm

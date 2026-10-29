@@ -7,6 +7,7 @@ const config = (overrides: Partial<SaysConfig> = {}): SaysConfig => ({
   keys,
   startHome: true,
   practice: false,
+  lives: 1,
   prevBest: 0,
   ...overrides,
 });
@@ -123,6 +124,26 @@ describe("SaysGame", () => {
     const over = step(wrong.state, {type: "finish"});
     expect(over.state).toMatchObject({phase: "gameOver", reason: "wrong", failedAt: 1, score: 2, newBest: true});
     expect(over.effects).toContainEqual({type: "saveBest", score: 2});
+  });
+
+  it("with lives to spare, takes one for a miss and plays the same pattern again", () => {
+    let {state} = run([{type: "tap", index: 0}, {type: "next"}, {type: "playbackDone"}], sequence(pickKey(4)), started({lives: 3}).state);
+    expect(state).toMatchObject({pattern: [0, 4], lives: 3});
+
+    let effects: Effect[];
+    ({state, effects} = run([{type: "tap", index: 0}, {type: "tap", index: 5}], sequence(0), state));
+    expect(state).toMatchObject({phase: "failing", lives: 2, reason: "wrong"});
+    expect(effects).toContainEqual({type: "after", ms: TIMING.retryMs, event: {type: "retry"}});
+
+    ({state, effects} = step(state, {type: "retry"}));
+    expect(state).toMatchObject({phase: "playback", pattern: [0, 4], taps: [], lives: 2});
+    expect(effects).toContainEqual({type: "playPattern", pattern: [0, 4], lights: false});
+
+    // A timeout costs a life too, and the last one ends the game with the same scoring as before
+    ({state} = run([{type: "playbackDone"}, {type: "timeout"}], sequence(0), state));
+    expect(state).toMatchObject({phase: "failing", lives: 1, reason: "timeout"});
+    ({state} = run([{type: "retry"}, {type: "playbackDone"}, {type: "timeout"}], sequence(0), state));
+    expect(state).toMatchObject({phase: "gameOver", lives: 0, reason: "timeout", failedAt: 0, score: 1});
   });
 
   it("only records a best in Game mode, and only when it beats the old one", () => {

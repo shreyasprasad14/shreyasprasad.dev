@@ -2,7 +2,7 @@ import type {Standing} from "../../shared/protocol";
 import {formatPoints, Hearts, ordinal} from "../bits";
 import type {RoomView} from "../useRoom";
 
-function StandingRow({entry}: {entry: Standing}) {
+function StandingRow({entry, maxLives}: {entry: Standing; maxLives: number}) {
   return (
     <li class={entry.outRound !== undefined ? "out" : ""}>
       <span class="standing-rank">{entry.rank}</span>
@@ -10,7 +10,7 @@ function StandingRow({entry}: {entry: Standing}) {
       {entry.outRound !== undefined ? (
         <span class="muted small">out after round {entry.outRound}</span>
       ) : (
-        <Hearts lives={entry.lives} />
+        <Hearts lives={entry.lives} max={maxLives} />
       )}
       <span class="standing-points">{formatPoints(entry.points)}</span>
     </li>
@@ -25,7 +25,7 @@ export function Leaderboard({view, onNext}: {view: RoomView; onNext: () => void}
       <h2>After round {round}{max > 0 ? ` of ${max}` : ""}</h2>
       <ol class="standing-list">
         {top.map((entry) => (
-          <StandingRow key={entry.id} entry={entry} />
+          <StandingRow key={entry.id} entry={entry} maxLives={view.settings.lives} />
         ))}
       </ol>
       <div class="board-next">
@@ -68,7 +68,7 @@ export function Podium({view, onPlayAgain, onClose}: {view: RoomView; onPlayAgai
       {ranking.length > 3 && (
         <ol class="standing-list compact">
           {ranking.slice(3).map((entry) => (
-            <StandingRow key={entry.id} entry={entry} />
+            <StandingRow key={entry.id} entry={entry} maxLives={view.settings.lives} />
           ))}
         </ol>
       )}

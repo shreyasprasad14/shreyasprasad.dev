@@ -1,19 +1,8 @@
 import qrcode from "qrcode-generator";
 import {useMemo} from "preact/hooks";
-import {LIVES} from "../shared/protocol";
 import type {Status} from "./net";
 
-export function Hearts({lives, size = "normal"}: {lives: number; size?: "normal" | "large"}) {
-  return (
-    <span class={`hearts ${size}`} aria-label={`${lives} ${lives === 1 ? "life" : "lives"} left`}>
-      {Array.from({length: LIVES}, (_, i) => (
-        <span key={i} class={i < lives ? "heart full" : "heart"} aria-hidden="true">
-          {i < lives ? "♥" : "♡"}
-        </span>
-      ))}
-    </span>
-  );
-}
+export {default as Hearts} from "../ui/Hearts";
 
 // Dark modules on white whatever the theme, since phone cameras expect that
 export function QrCode({text, label}: {text: string; label: string}) {

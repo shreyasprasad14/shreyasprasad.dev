@@ -98,4 +98,9 @@ describe("parseClientMsg", () => {
   it("drops unknown settings keys", () => {
     expect(parseSettings({...DEFAULT_LIVE_SETTINGS, extra: "x"})).toEqual(DEFAULT_LIVE_SETTINGS);
   });
+
+  it("accepts any whole number of lives from 1 to 10", () => {
+    expect(parseSettings({...DEFAULT_LIVE_SETTINGS, lives: 7})?.lives).toBe(7);
+    for (const lives of [0, 11, 2.5, "3", undefined]) expect(parseSettings({...DEFAULT_LIVE_SETTINGS, lives})).toBeNull();
+  });
 });

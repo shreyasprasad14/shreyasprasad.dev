@@ -271,6 +271,20 @@ describe("rounds", () => {
     expect(h.run((core) => core.end())).toBe(true);
   });
 
+  it("starts everyone with the configured lives, including after a change in the lobby", () => {
+    const h = new Harness({lives: 5});
+    h.run((core) => core.join(A, "Ada", h.now));
+    expect(h.s.players[A].lives).toBe(5);
+    h.run((core) => core.setSettings({...h.s.settings, lives: 1}));
+    expect(h.s.players[A].lives).toBe(1);
+    h.run((core) => core.join(B, "Ben", h.now));
+    h.run((core) => core.start(h.now));
+    h.at(h.s.inputOpensAt);
+    h.tapAll(A, [2]);
+    expect(h.s.players[A]).toMatchObject({lives: 0, alive: false, outRound: 1});
+    expect(h.s.players[B].lives).toBe(1);
+  });
+
   it("resets scores and keeps the roster on play again", () => {
     const h = startedGame();
     h.run((core) => core.join(C, "Cy", h.now));

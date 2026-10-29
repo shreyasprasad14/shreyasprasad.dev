@@ -187,14 +187,15 @@ const BEST_ROWS: {mode: Mode; label: string}[] = [
 
 const FORM_SHORT: Record<Form, string> = {natural: "Nat", harmonic: "Harm", melodic: "Mel"};
 
-export function BestsTable({bests}: {bests: Bests}) {
+export function BestsTable({bests, lives}: {bests: Bests; lives: number}) {
   const [open, setOpen] = useState(false);
-  const cell = (mode: Mode, range: Range, form: Form = "natural") => bests[bestKey(mode, form, range)] ?? "–";
+  const cell = (mode: Mode, range: Range, form: Form = "natural") => bests[bestKey(mode, form, range, lives)] ?? "–";
+  const label = lives === 1 ? "Best scores" : `Best scores with ${lives} lives`;
 
   return (
     <section class="bests">
       <button type="button" class="link-button" aria-expanded={open} onClick={() => setOpen(!open)}>
-        {open ? "Hide best scores" : "Best scores"}
+        {open ? `Hide ${label.toLowerCase()}` : label}
       </button>
       {open && (
         <div class="table-wrap">

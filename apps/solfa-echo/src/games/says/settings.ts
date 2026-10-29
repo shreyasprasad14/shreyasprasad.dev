@@ -4,7 +4,13 @@ import type {SaysSettings} from "../../shared/says-core";
 
 export type {SaysSettings};
 
-export const DEFAULT_SETTINGS: SaysSettings = {
+export const SOLO_LIVES = [1, 3, 5] as const;
+
+export interface SoloSettings extends SaysSettings {
+  lives: (typeof SOLO_LIVES)[number];
+}
+
+export const DEFAULT_SETTINGS: SoloSettings = {
   mode: "major",
   form: "natural",
   range: 3,
@@ -12,6 +18,7 @@ export const DEFAULT_SETTINGS: SaysSettings = {
   sound: "voice",
   lights: false,
   startHome: true,
+  lives: 1,
 };
 
 const PREFS_KEY = "says.prefs.v1";
@@ -21,7 +28,7 @@ const FORMS: Form[] = ["natural", "harmonic", "melodic"];
 const SOUNDS: Sound[] = ["voice", "piano"];
 
 // Range and Practice mode aren't remembered: every visit opens on the full scale, in Game mode
-export function loadSettings(): SaysSettings {
+export function loadSettings(): SoloSettings {
   const saved = read(PREFS_KEY, {}, isRecord);
   const pick = <T,>(value: unknown, allowed: readonly T[], fallback: T) =>
     allowed.includes(value as T) ? (value as T) : fallback;
@@ -35,9 +42,10 @@ export function loadSettings(): SaysSettings {
       ? (keyPc as number | "random")
       : DEFAULT_SETTINGS.keyPc,
     startHome: typeof saved.startHome === "boolean" ? saved.startHome : DEFAULT_SETTINGS.startHome,
+    lives: pick(saved.lives, SOLO_LIVES, DEFAULT_SETTINGS.lives),
   };
 }
 
-export function saveSettings({mode, form, keyPc, sound, startHome}: SaysSettings) {
-  write(PREFS_KEY, {mode, form, keyPc, sound, startHome});
+export function saveSettings({mode, form, keyPc, sound, startHome, lives}: SoloSettings) {
+  write(PREFS_KEY, {mode, form, keyPc, sound, startHome, lives});
 }

@@ -238,7 +238,7 @@ function Between({view}: {view: RoomView}) {
         {you.name} · Room {view.code}
       </span>
       <div class="topbar-end">
-        {!you.spectator && <Hearts lives={you.lives} />}
+        {!you.spectator && <Hearts lives={you.lives} max={view.settings.lives} />}
         <ThemeToggle />
       </div>
     </header>
@@ -402,7 +402,7 @@ function PlayerRound({room}: {room: ReturnType<typeof useRoom>}) {
         <span class="round-label">
           {you.name} · Round {round.round}
         </span>
-        {you.spectator ? <span class="muted small">practice</span> : <Hearts lives={you.lives} />}
+        {you.spectator ? <span class="muted small">practice</span> : <Hearts lives={you.lives} max={view.settings.lives} />}
         <span class="round-tools">
           <button
             type="button"
