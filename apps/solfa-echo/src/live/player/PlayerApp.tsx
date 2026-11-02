@@ -98,7 +98,7 @@ function JoinForm({
       <main class="landing">
         <div class="intro">
           <h1>{title}</h1>
-          <p class="muted">Enter the code on the board and pick a nickname. Don't use your full real name.</p>
+          <p class="muted">Enter the code on the board and pick a nickname.</p>
         </div>
         <form
           class="join-form"
