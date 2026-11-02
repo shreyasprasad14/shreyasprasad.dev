@@ -79,9 +79,9 @@ export function Podium({view, onPlayAgain, onClose}: {view: RoomView; onPlayAgai
         <button
           type="button"
           class="link-button"
-          onClick={() => confirm("Close this room? Everyone in it will be disconnected.") && onClose()}
+          onClick={() => confirm("Close this game? Everyone in it will be disconnected.") && onClose()}
         >
-          Close room
+          Close game
         </button>
       </div>
     </main>

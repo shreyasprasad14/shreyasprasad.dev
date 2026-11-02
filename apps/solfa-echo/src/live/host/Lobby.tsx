@@ -17,10 +17,10 @@ export function Lobby({view, send, onStart}: {view: RoomView; send: (msg: Client
     <main class="lobby">
       <section class="join-panel">
         <p class="join-how">
-          Go to <strong>{site}</strong>, tap <strong>Join a class</strong> and enter
+          Go to <strong>{site}</strong>, tap <strong>Join a game</strong> and enter
         </p>
         <p class="join-code">{view.code}</p>
-        <QrCode text={joinLink(view.code)} label={`QR code to join room ${view.code}`} />
+        <QrCode text={joinLink(view.code)} label={`QR code to join game ${view.code}`} />
         <p class="muted small">or scan to join</p>
       </section>
 
@@ -31,7 +31,7 @@ export function Lobby({view, send, onStart}: {view: RoomView; send: (msg: Client
           </h2>
           <label class="toggle">
             <input type="checkbox" checked={view.locked} onChange={(e) => send({type: "lock", locked: e.currentTarget.checked})} />
-            <span>Lock room</span>
+            <span>Lock game</span>
           </label>
         </div>
         <Roster roster={view.roster} send={send} />
@@ -52,9 +52,9 @@ export function Lobby({view, send, onStart}: {view: RoomView; send: (msg: Client
             <button
               type="button"
               class="link-button"
-              onClick={() => confirm("Close this room? Everyone in it will be disconnected.") && send({type: "end"})}
+              onClick={() => confirm("Close this game? Everyone in it will be disconnected.") && send({type: "end"})}
             >
-              Close room
+              Close game
             </button>
           </div>
           {editing && <LiveSettingsForm settings={view.settings} onChange={(settings) => send({type: "settings", settings})} />}

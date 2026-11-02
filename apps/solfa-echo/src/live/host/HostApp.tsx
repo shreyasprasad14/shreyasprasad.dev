@@ -88,7 +88,7 @@ function HostSetup({onCreated}: {onCreated: (session: HostSession) => void}) {
       </header>
       <main class="landing">
         <div class="intro">
-          <h1>Host a class game</h1>
+          <h1>Host a game</h1>
           <p class="muted">
             Put this screen on the projector. Students join from their own devices with a code, then everyone hears
             the same pattern from the board and taps it back at once. Each student has a set number of lives, and you
@@ -104,11 +104,11 @@ function HostSetup({onCreated}: {onCreated: (session: HostSession) => void}) {
         />
         <div class="start">
           <button type="button" class="button" onClick={create} disabled={busy}>
-            {busy ? "Creating room…" : "Create room"}
+            {busy ? "Creating game…" : "Create game"}
           </button>
           {error && (
             <p class="error" role="alert">
-              Couldn't create a room. Check your connection and try again.
+              Couldn't create a game. Check your connection and try again.
             </p>
           )}
         </div>
@@ -170,7 +170,7 @@ function HostRoom({session, onExit}: {session: HostSession; onExit: () => void})
       <div class="page">
         <main class="landing">
           <div class="intro">
-            <h1>Room closed</h1>
+            <h1>Game closed</h1>
             <p class="muted">
               {view.closed ? "This session has ended and nothing from it was kept." : ERROR_TEXT[view.error!]}
             </p>

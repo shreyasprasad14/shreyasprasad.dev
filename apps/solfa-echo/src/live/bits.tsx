@@ -42,15 +42,15 @@ export const ordinal = (n: number) => {
 export const formatPoints = (points: number) => points.toLocaleString("en");
 
 export const ERROR_TEXT: Record<string, string> = {
-  ROOM_NOT_FOUND: "There's no room with that code. Check the board and try again.",
-  BAD_HOST_KEY: "This room belongs to another board.",
+  ROOM_NOT_FOUND: "There's no game with that code. Check the board and try again.",
+  BAD_HOST_KEY: "This game belongs to another board.",
   NAME_REQUIRED: "Pick a nickname to join.",
   NAME_INVALID: "Nicknames are 2 to 16 characters, with at least one letter or number.",
   NAME_BLOCKED: "Please pick a different nickname.",
   NAME_TAKEN: "Someone already has that nickname. Try another.",
-  ROOM_FULL: "This room is full (60 players).",
-  ROOM_LOCKED: "The teacher has locked this room, so no one new can join.",
-  KICKED: "The teacher removed you from this room.",
+  ROOM_FULL: "This game is full (60 players).",
+  ROOM_LOCKED: "The teacher has locked this game, so no one new can join.",
+  KICKED: "The teacher removed you from this game.",
   NOT_ENOUGH_PLAYERS: "Wait for at least one student to join.",
-  UNAVAILABLE: "The room is unavailable right now. Try again in a minute.",
+  UNAVAILABLE: "The game is unavailable right now. Try again in a minute.",
 };

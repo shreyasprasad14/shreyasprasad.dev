@@ -76,7 +76,7 @@ function JoinForm({
   initialCode,
   error,
   onJoin,
-  title = "Join a class",
+  title = "Join a game",
 }: {
   initialCode: string;
   error: ErrorCode | null;
@@ -167,7 +167,7 @@ function PlayerRoom({
     return (
       <Notice
         title={view.closed ? "Game over" : "Removed"}
-        text={view.closed ? "The teacher has closed this room. Thanks for playing!" : ERROR_TEXT.KICKED}
+        text={view.closed ? "The teacher has closed this game. Thanks for playing!" : ERROR_TEXT.KICKED}
       />
     );
   }
@@ -179,7 +179,7 @@ function PlayerRoom({
       <JoinForm
         key={view.error ?? "rename"}
         initialCode={code}
-        title={renaming ? "Pick a new nickname" : "Join a class"}
+        title={renaming ? "Pick a new nickname" : "Join a game"}
         error={renaming && !view.error ? null : view.error}
         onJoin={(nextCode, name) => {
           if (!renaming || nextCode !== code) return onJoin(nextCode, name);
@@ -194,7 +194,7 @@ function PlayerRoom({
     return (
       <>
         <ConnectionBanner status={status} />
-        <Notice title="Joining…" text={`Room ${code}`} />
+        <Notice title="Joining…" text={`Game ${code}`} />
       </>
     );
   }
@@ -235,7 +235,7 @@ function Between({view}: {view: RoomView}) {
   const head = (
     <header class="topbar">
       <span class="muted">
-        {you.name} · Room {view.code}
+        {you.name} · Game {view.code}
       </span>
       <div class="topbar-end">
         {!you.spectator && <Hearts lives={you.lives} max={view.settings.lives} />}

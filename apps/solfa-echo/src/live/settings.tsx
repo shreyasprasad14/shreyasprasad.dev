@@ -105,7 +105,7 @@ export function LiveSettingsForm({settings, onChange}: {settings: LiveSettings; 
         onChange={(studentAudio) => set({studentAudio})}
         hint={
           settings.studentAudio
-            ? "For headphones or remote classes. Student devices receive the notes, so a curious student could find them."
+            ? "For headphones or remote lessons. Student devices receive the notes, so a curious student could find them."
             : "Students listen to the board. Their devices never receive the notes."
         }
       />
